@@ -6,7 +6,7 @@ This file sets parameters used in real-time OpenEEW algorithm
 db_name = 'openeew'             # database name
 host = "localhost"              # database host
 user = "root"                   # database user
-passwd = "a0a975770495"         # database password
+passwd = ""         # database password
 
 # PATH TO DATA AND DEVICE
 device_path = 'data/devices/devices_locations.csv' # path to folder with device locations
