@@ -39,18 +39,15 @@ def make_raw_table(data_path, db):
     """
 
     # do some printing
-    print('')
-    print('----------')
-    print('POPULATING RAW DATA TABLE')
-    print('----------')
+    print("")
+    print("----------")
+    print("POPULATING RAW DATA TABLE")
+    print("----------")
 
     # connect to the database
     mydb = mysql.connector.connect(
-        host=db['host'],
-        user=db['user'],
-        passwd=db['passwd'], 
-        database=db['db_name']
-    ) 
+        host=db["host"], user=db["user"], passwd=db["passwd"], database=db["db_name"]
+    )
 
     # set the database pointer
     cur = mydb.cursor()
@@ -72,11 +69,11 @@ def make_raw_table(data_path, db):
     sql = "INSERT INTO raw_data (device_id, time, x, y, z) VALUES (%s, %s, %s, %s, %s)"
 
     # loop over all files in a folder
-    for filepath in glob.iglob(data_path + '/*/*.jsonl'):
+    for filepath in glob.iglob(data_path + "/*/*.jsonl"):
 
         print(filepath)
 
-        with open(filepath, 'r') as json_file:
+        with open(filepath, "r") as json_file:
             json_list = list(json_file)
 
         # loop over all elements in the file
@@ -84,11 +81,11 @@ def make_raw_table(data_path, db):
             result = json.loads(json_str)
 
             # get the data from json line
-            device_id = result['device_id']
-            cloud_t = result['cloud_t']
-            x = result['x']
-            y = result['y']
-            z = result['z']
+            device_id = result["device_id"]
+            cloud_t = result["cloud_t"]
+            x = result["x"]
+            y = result["y"]
+            z = result["z"]
 
             # loop over all irems in the json line
             for item in range(len(x)):
@@ -108,7 +105,7 @@ def plot_raw_data(db):
 
 
 def time_start(db):
-    
+
     """The function finds the minimum time in the database
 
     INPUT:
@@ -120,11 +117,8 @@ def time_start(db):
 
     # connect to the database
     mydb = mysql.connector.connect(
-        host=db['host'],
-        user=db['user'],
-        passwd=db['passwd'], 
-        database=db['db_name']
-    ) 
+        host=db["host"], user=db["user"], passwd=db["passwd"], database=db["db_name"]
+    )
 
     # set the database pointer
     cur = mydb.cursor()
@@ -142,19 +136,19 @@ def time_start(db):
     cur.close()
 
     # do some printing:
-    time_string = datetime.utcfromtimestamp(time_min).strftime('%Y-%m-%d %H:%M:%S')
+    time_string = datetime.utcfromtimestamp(time_min).strftime("%Y-%m-%d %H:%M:%S")
 
-    print('')
-    print('----------')
-    print('Start time: {}'.format(time_string))
-    print('----------')
+    print("")
+    print("----------")
+    print("Start time: {}".format(time_string))
+    print("----------")
 
     # return start timestamp
     return time_min
 
 
 def fetch_data(db, timestamp):
-    
+
     """The function fetches all data from a second given by timestamp
     from a given database
 
@@ -165,23 +159,25 @@ def fetch_data(db, timestamp):
     OUTPUT:
     data : All data in raw_data table of a given second
     """
-    
+
     # signal rate
     sr = 31.25
 
     # connect to the database
     mydb = mysql.connector.connect(
-        host=db['host'],
-        user=db['user'],
-        passwd=db['passwd'], 
-        database=db['db_name']
-    ) 
+        host=db["host"], user=db["user"], passwd=db["passwd"], database=db["db_name"]
+    )
 
     # set the database pointer
     cur = mydb.cursor()
 
     # delete the data table if there is one in the database
-    sql = "SELECT device_id, time, x, y, z FROM raw_data WHERE time BETWEEN " + str(timestamp-1) + ' AND ' + str(timestamp)
+    sql = (
+        "SELECT device_id, time, x, y, z FROM raw_data WHERE time BETWEEN "
+        + str(timestamp - 1)
+        + " AND "
+        + str(timestamp)
+    )
     cur.execute(sql)
 
     # fetch the result
@@ -205,7 +201,7 @@ def fetch_data(db, timestamp):
 
         # find indexes of entries from a particular station
         sta_index = [i for i, e in enumerate(data_sta) if e == sta]
-        
+
         # find entries for the station
         x = [data_x[i] for i in sta_index]
         y = [data_y[i] for i in sta_index]
@@ -213,19 +209,18 @@ def fetch_data(db, timestamp):
 
         # find the time (primary dictionary key)
         time_start = data_time[sta_index[0]]
-        time = list(time_start -  np.arange(0,len(x))[::-1]/sr)
+        time = list(time_start - np.arange(0, len(x))[::-1] / sr)
 
         # add into the disctionary
-        data_list.append({'sta': sta, 'time': time, 'x': x, 'y': y, 'z': z})
+        data_list.append({"sta": sta, "time": time, "x": x, "y": y, "z": z})
 
     # you should close what you've opened
     mydb.close()
     cur.close()
 
     # do some printing:
-    time_string = datetime.utcfromtimestamp(time_start).strftime('%Y-%m-%d %H:%M:%S')
+    time_string = datetime.utcfromtimestamp(time_start).strftime("%Y-%m-%d %H:%M:%S")
 
-    print('Time: {}'.format(time_string))
+    print("Time: {}".format(time_string))
 
     return data_list
-    

@@ -29,18 +29,15 @@ def populate_devices(data_path, db):
     OUTPUT:
     The function has no outputs
     """
-    print('')
-    print('----------')
-    print('POPULATING DEVICE TABLE')
-    print('----------')
+    print("")
+    print("----------")
+    print("POPULATING DEVICE TABLE")
+    print("----------")
 
     # connect to the database
     mydb = mysql.connector.connect(
-        host=db['host'],
-        user=db['user'],
-        passwd=db['passwd'], 
-        database=db['db_name']
-    ) 
+        host=db["host"], user=db["user"], passwd=db["passwd"], database=db["db_name"]
+    )
 
     # set the database pointer
     cur = mydb.cursor()
@@ -57,7 +54,7 @@ def populate_devices(data_path, db):
             elev DOUBLE(7,3), \
             firmware_version DOUBLE(5,2), \
             device_type VARCHAR(255), \
-            time_entered DOUBLE(13,3))"      
+            time_entered DOUBLE(13,3))"
     cur.execute(sql)
 
     ## POPULATE THE DATA
@@ -70,10 +67,10 @@ def populate_devices(data_path, db):
         device_type, \
         time_entered \
         ) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        
+
     # open csv file with station locations
     with open(data_path) as csvfile:
-        data = csv.reader(csvfile, delimiter=',')
+        data = csv.reader(csvfile, delimiter=",")
         for row in data:
             # read station specs
             device_id = row[0]
@@ -81,11 +78,19 @@ def populate_devices(data_path, db):
             longitude = float(row[2])
             elev = 0
             firmware_version = 1.0
-            device_type = 'OpenEEW 2.0'
+            device_type = "OpenEEW 2.0"
             time_entered = 0
 
             # enter in the database
-            entry = (device_id, latitude, longitude, elev, firmware_version, device_type, time_entered)
+            entry = (
+                device_id,
+                latitude,
+                longitude,
+                elev,
+                firmware_version,
+                device_type,
+                time_entered,
+            )
             cur.execute(sql, entry)
 
     # commit changes in the table
@@ -98,5 +103,3 @@ def populate_devices(data_path, db):
 
 def plot_devices(db):
     pass
-
-

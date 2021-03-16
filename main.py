@@ -23,24 +23,24 @@ __status__ = ""
 # ---------------------------------------------
 
 # create empty database
-if main_params['db_init']:
+if main_params["db_init"]:
     db_handle.db_init(db)
 
 # create empty detection, device, assoc and event tables
 db_handle.db_tables_init(db)
 
 # populate the device table
-devices.populate_devices(main_params['device_path'], db)
+devices.populate_devices(main_params["device_path"], db)
 
 # open/calculate travel times
 travel_times = travel_time.calculate_trave_times(db, params=tt_params)
 
 # create and populate raw_data table in the database
-if main_params['populate_raw']:
-    raw_data.make_raw_table(main_params['data_path'], db)
+if main_params["populate_raw"]:
+    raw_data.make_raw_table(main_params["data_path"], db)
 
 # load keras detection model
-detection_model_name = det_params['detection_model_name']
+detection_model_name = det_params["detection_model_name"]
 detection_model = detection.load_model(detection_model_name)
 
 # initiate the first event
@@ -51,7 +51,7 @@ ev = None
 # ---------------------------------------------
 
 # get the start time
-time_now = raw_data.time_start(db)+1
+time_now = raw_data.time_start(db) + 1
 
 # create empty data dictionary
 data_buffer = []
@@ -72,24 +72,21 @@ while True:
         data_buffer=data_buffer,
         db=db,
         time_now=time_now,
-        params=det_params # alternatively choose 'ml'
+        params=det_params,  # alternatively choose 'ml'
     )
 
     # LOCATION
     ev = event.find_and_locate(
-        ev=ev,
-        db=db,
-        time_now=time_now, 
-        travel_times=travel_times,
-        params=mag_params
+        ev=ev, db=db, time_now=time_now, travel_times=travel_times, params=mag_params
     )
-
 
     # Remove old data from the buffer
     # (all data chunks with the firs element older that time_now - buffer time)
-    buffer_len = main_params['buffer_len']
-    data_buffer = [line for line in data_buffer if line['time'][0]>(time_now-buffer_len)]
+    buffer_len = main_params["buffer_len"]
+    data_buffer = [
+        line for line in data_buffer if line["time"][0] > (time_now - buffer_len)
+    ]
 
     # UPDATE TIME AND SLEEP
     time_now += 1
-    time.sleep(main_params['sleep_time']) 
+    time.sleep(main_params["sleep_time"])
