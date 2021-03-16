@@ -30,20 +30,18 @@ def db_init(db):
 
     # connect to the database
     mydb = mysql.connector.connect(
-        host=db['host'],
-        user=db['user'],
-        passwd=db['passwd']
-    ) 
+        host=db["host"], user=db["user"], passwd=db["passwd"]
+    )
 
     # set the database pointer
     cur = mydb.cursor()
 
     # delete an old database if exists
-    sql = "DROP DATABASE IF EXISTS " + db['db_name']
+    sql = "DROP DATABASE IF EXISTS " + db["db_name"]
     cur.execute(sql)
 
     # create a new database
-    sql = "CREATE DATABASE " + db['db_name']
+    sql = "CREATE DATABASE " + db["db_name"]
     cur.execute(sql)
 
     # close db and cursor
@@ -64,11 +62,8 @@ def db_tables_init(db):
 
     # connect to the database
     mydb = mysql.connector.connect(
-        host=db['host'],
-        user=db['user'],
-        passwd=db['passwd'], 
-        database=db['db_name']
-    ) 
+        host=db["host"], user=db["user"], passwd=db["passwd"], database=db["db_name"]
+    )
 
     # set the database pointer
     cur = mydb.cursor()
@@ -86,7 +81,6 @@ def db_tables_init(db):
     sql = "DROP TABLE IF EXISTS event"
     cur.execute(sql)
 
-
     # create table devices
     sql = "CREATE TABLE devices \
             (device_id VARCHAR(255), \
@@ -95,7 +89,7 @@ def db_tables_init(db):
             elev DOUBLE(7,3), \
             firmware_version DOUBLE(5,2), \
             device_type VARCHAR(255), \
-            time_entered DOUBLE(13,3))"      
+            time_entered DOUBLE(13,3))"
     cur.execute(sql)
 
     # create a detection table
@@ -135,4 +129,3 @@ def db_tables_init(db):
     # you should close what you've opened
     mydb.close()
     cur.close()
-
