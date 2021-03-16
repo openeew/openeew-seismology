@@ -1,0 +1,22 @@
+name: linter
+
+on:
+  # Execute on every push to any branch
+  push:
+    branches:
+      - "**"
+  # Execute on every pull request to the master branch
+  pull_request_target:
+    branches:
+      - master
+
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+      - run: pip install black
+      - run: black --check --verbose .
