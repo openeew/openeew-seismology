@@ -31,7 +31,7 @@ def run():
     client = create_client(
         arguments.host, arguments.port, arguments.username, arguments.password
     )
-    publish_jsonl(arguments.directory, client)
+    publish_jsonl(arguments.directory, client, "/traces")
 
 
 def create_client(host, port, username, password):
@@ -45,7 +45,7 @@ def create_client(host, port, username, password):
     return client
 
 
-def publish_jsonl(data_path, client):
+def publish_jsonl(data_path, client, topic):
     """Publish each line of a jsonl given a directory"""
 
     # loop over all *.jsonl files in a folder
@@ -58,7 +58,7 @@ def publish_jsonl(data_path, client):
 
         # loop over all json elements in the json array and publish to MQTT
         for json_str in json_array:
-            client.publish("/traces-test", json.dumps(json_str))
+            client.publish(topic, json.dumps(json_str))
 
 
 run()
