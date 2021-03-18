@@ -70,3 +70,20 @@ To set up a local MQTT server you can follow the instructions on https://hub.doc
 docker run -it -p 9001:9001 -p 1883:1883 --detach eclipse-mosquitto:latest mosquitto -c /mosquitto-no-auth.conf
 ```
 
+### Simulate sensor data
+
+This repository contains sample data that can be used to feed the seismology algorithms. To simulate this data we have included
+several data simulators. Each of these simulators communicate with an MQTT server. The simulaters accept several options that can be listed by running ```python3 <simulator_script>.py -h```. If no arguments are passed, the simulators will assume MQTT is on localhost, port 1883. The simulators by default, will utilize the data contained in the data directory of this repository.
+
+To execute the device simulator:
+```
+cd utils
+python3 simulate_devices.py
+```
+
+To execute the traces simulator:
+```
+cd utils
+python3 simulate_traces.py
+```
+
