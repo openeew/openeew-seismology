@@ -19,21 +19,16 @@ __status__ = ""
 
 
 def plot_data(db):
-    
-    """
 
-    """
-    
+    """"""
+
     # signal rate
     sr = 31.25
 
     # connect to the database
     mydb = mysql.connector.connect(
-        host=db['host'],
-        user=db['user'],
-        passwd=db['passwd'], 
-        database=db['db_name']
-    ) 
+        host=db["host"], user=db["user"], passwd=db["passwd"], database=db["db_name"]
+    )
 
     # set the database pointer
     cur = mydb.cursor()
@@ -50,7 +45,9 @@ def plot_data(db):
     for station in unique_sta:
 
         # select records from the database
-        sql = "SELECT time, x FROM raw_data WHERE device_id=" + station + " ORDER BY time"
+        sql = (
+            "SELECT time, x FROM raw_data WHERE device_id=" + station + " ORDER BY time"
+        )
         cur.execute(sql)
 
         # fetch the result
@@ -62,12 +59,14 @@ def plot_data(db):
         # plot data
         for t in unique_time:
             # get the values
-            x = np.array([n[1] for n in data if n[0]==t])
-            
-            time = list(t - np.flip(np.arange(0,len(x)))/sr)
+            x = np.array([n[1] for n in data if n[0] == t])
 
-            plt.plot(time, x/5+count, linewidth=.5, color=[.5, .5, .5]) # x component
-            
+            time = list(t - np.flip(np.arange(0, len(x))) / sr)
+
+            plt.plot(
+                time, x / 5 + count, linewidth=0.5, color=[0.5, 0.5, 0.5]
+            )  # x component
+
         # get the detections
         sql = "SELECT time FROM detections WHERE device_id=" + station
         cur.execute(sql)
@@ -79,9 +78,9 @@ def plot_data(db):
         time = [n[0] for n in data]
 
         for n in range(len(time)):
-            plt.scatter(time[n], count, facecolor='none', edgecolor='b')
+            plt.scatter(time[n], count, facecolor="none", edgecolor="b")
 
-        count+=1
+        count += 1
 
     plt.show()
 
@@ -91,10 +90,10 @@ def plot_data(db):
 
 
 # choose db name
-db_name = 'openeew'
+db_name = "openeew"
 host = "localhost"
 user = "root"
 passwd = "a0a975770495"
-db = {'db_name': db_name, 'host': host, 'user': user, 'passwd': passwd}
+db = {"db_name": db_name, "host": host, "user": user, "passwd": passwd}
 
 plot_data(db)
