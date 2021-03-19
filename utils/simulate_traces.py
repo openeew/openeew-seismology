@@ -21,6 +21,7 @@ def run():
         nargs="?",
         default="../data/2020_7_2",
     )
+    parser.add_argument("--clientid", help="MQTT clientID", default="simulator_traces")
 
     # If MQTT has username and password authentication on
     parser.add_argument("--username", help="A username for the MQTT Server")
