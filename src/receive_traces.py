@@ -1,4 +1,4 @@
-"""This script receives trace data from MQTT by subscribing to the /traces topic"""
+"""This script receives trace data from MQTT by subscribing to a topic"""
 import json
 from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
@@ -9,7 +9,7 @@ def run():
     parser = ArgumentParser()
     parser.add_argument("--username", help="MQTT username")
     parser.add_argument("--password", help="MQTT password")
-    parser.add_argument("--clientid", help="MQTT clientID", default="simulator")
+    parser.add_argument("--clientid", help="MQTT clientID", default="recieve_traces_simulator")
     parser.add_argument(
         "--host", help="MQTT host", nargs="?", const="localhost", default="localhost"
     )
@@ -38,9 +38,9 @@ def create_client(host, port, username, password, clientid):
 
 
 def on_connect(client, userdata, flags, resultcode):
-    """Upon connecting to an MQTT server, subscribe to the /traces topic"""
-    """The production topic is 'iot-2/type/OpenEEW/id/+/evt/status/fmt/json'"""
-    topic = "/traces"
+    """Upon connecting to an MQTT server, subscribe to the topic
+    The production topic is 'iot-2/type/OpenEEW/id/+/evt/status/fmt/json'"""
+
     topic = "iot-2/type/OpenEEW/id/+/evt/status/fmt/json"
     print(f"✅ Connected with result code {resultcode}")
     client.subscribe(topic)
