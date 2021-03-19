@@ -32,7 +32,11 @@ def run():
     client = create_client(
         arguments.host, arguments.port, arguments.username, arguments.password
     )
-    publish_jsonl(arguments.directory, client, "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json")
+    publish_jsonl(
+        arguments.directory,
+        client,
+        "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json",
+    )
 
 
 def create_client(host, port, username, password):
