@@ -20,6 +20,7 @@ def run():
         nargs="?",
         default="../data/devices/device_locations.json",
     )
+    parser.add_argument("--clientid", help="MQTT clientID", default="simulate_devices")
 
     # If MQTT has username and password authentication on
     parser.add_argument("--username", help="A username for the MQTT Server")
@@ -33,7 +34,7 @@ def run():
 
     json_data = load_json(arguments.file)
 
-    publish_json(client, "/devices", json_data)
+    publish_json(client, "iot-2/type/OpenEEW/id/000000000000/mon", json_data)
 
     client.disconnect()
 
