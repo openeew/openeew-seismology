@@ -9,6 +9,7 @@ def run():
     parser = ArgumentParser()
     parser.add_argument("--username", help="MQTT username")
     parser.add_argument("--password", help="MQTT password")
+    parser.add_argument("--clientid", help="MQTT clientID", default="simulator")
     parser.add_argument(
         "--host", help="MQTT host", nargs="?", const="localhost", default="localhost"
     )
@@ -18,15 +19,14 @@ def run():
     arguments = parser.parse_args()
 
     client = create_client(
-        arguments.host, arguments.port, arguments.username, arguments.password
+        arguments.host, arguments.port, arguments.username, arguments.password, arguments.clientid
     )
-
     client.loop_forever()
 
 
-def create_client(host, port, username, password):
+def create_client(host, port, username, password, clientid):
     """Creating an MQTT Client Object"""
-    client = MqttClient()
+    client = MqttClient(clientid)
 
     if username and password:
         client.username_pw_set(username=username, password=password)
@@ -39,8 +39,11 @@ def create_client(host, port, username, password):
 
 def on_connect(client, userdata, flags, resultcode):
     """Upon connecting to an MQTT server, subscribe to the /traces topic"""
+    """The production topic is 'iot-2/type/OpenEEW/id/+/evt/status/fmt/json'"""
+    topic = "/traces"
+    topic = "iot-2/type/OpenEEW/id/+/evt/status/fmt/json"
     print(f"✅ Connected with result code {resultcode}")
-    client.subscribe("/traces")
+    client.subscribe(topic)
 
 
 def on_message(client, userdata, message):
