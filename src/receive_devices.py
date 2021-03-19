@@ -9,6 +9,7 @@ def run():
     parser = ArgumentParser()
     parser.add_argument("--username", help="MQTT username")
     parser.add_argument("--password", help="MQTT password")
+    parser.add_argument("--clientid", help="MQTT clientID", default="simulator_publish")
     parser.add_argument(
         "--host", help="MQTT host", nargs="?", const="localhost", default="localhost"
     )
@@ -18,15 +19,15 @@ def run():
     arguments = parser.parse_args()
 
     client = create_client(
-        arguments.host, arguments.port, arguments.username, arguments.password
+        arguments.host, arguments.port, arguments.username, arguments.password, arguments.clientid
     )
 
     client.loop_forever()
 
 
-def create_client(host, port, username, password):
+def create_client(host, port, username, password, clientid):
     """Creating an MQTT Client Object"""
-    client = MqttClient()
+    client = MqttClient(clientid)
 
     if username and password:
         client.username_pw_set(username=username, password=password)
