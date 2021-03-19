@@ -9,7 +9,7 @@ def run():
     parser = ArgumentParser()
     parser.add_argument("--username", help="MQTT username")
     parser.add_argument("--password", help="MQTT password")
-    parser.add_argument("--clientid", help="MQTT clientID", default="simulator_publish")
+    parser.add_argument("--clientid", help="MQTT clientID", default="recieve_devices_simulator")
     parser.add_argument(
         "--host", help="MQTT host", nargs="?", const="localhost", default="localhost"
     )
@@ -39,7 +39,9 @@ def create_client(host, port, username, password, clientid):
 
 
 def on_connect(client, userdata, flags, resultcode):
-    """Upon connecting to an MQTT server, subscribe to the iot-2/type/OpenEEW/id/+/mon topic"""
+    """Upon connecting to an MQTT server, subscribe to a topic
+    the production topic is 'iot-2/type/OpenEEW/id/+/mon'"""
+
     topic = 'iot-2/type/OpenEEW/id/+/mon'
     print(f"✅ Connected with result code {resultcode}")
     client.subscribe(topic)
