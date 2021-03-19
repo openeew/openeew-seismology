@@ -1,4 +1,4 @@
-"""This script receives device data from MQTT by subscribing to the /devices topic"""
+"""This script receives device data from MQTT by subscribing to the iot-2/type/OpenEEW/id/+/mon"""
 import json
 from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
@@ -39,9 +39,10 @@ def create_client(host, port, username, password, clientid):
 
 
 def on_connect(client, userdata, flags, resultcode):
-    """Upon connecting to an MQTT server, subscribe to the /devices topic"""
+    """Upon connecting to an MQTT server, subscribe to the iot-2/type/OpenEEW/id/+/mon topic"""
+    topic = 'iot-2/type/OpenEEW/id/+/mon'
     print(f"✅ Connected with result code {resultcode}")
-    client.subscribe("/devices")
+    client.subscribe(topic)
 
 
 def on_message(client, userdata, message):
