@@ -21,6 +21,7 @@ def run():
         nargs="?",
         default="../data/2020_7_2",
     )
+
     parser.add_argument("--clientid", help="MQTT clientID", default="simulator_traces")
 
     # If MQTT has username and password authentication on
@@ -32,6 +33,7 @@ def run():
     client = create_client(
         arguments.host, arguments.port, arguments.username, arguments.password
     )
+
     publish_jsonl(
         arguments.directory,
         client,
