@@ -23,7 +23,6 @@ def run():
 
     parser.add_argument("--clientid", help="MQTT clientID", default="simulate_devices")
 
-
     # If MQTT has username and password authentication on
     parser.add_argument("--username", help="A username for the MQTT Server")
     parser.add_argument("--password", help="A password for the MQTT server")
