@@ -36,6 +36,8 @@ def run():
         if rows != len(accel_df.index) :
             print( "More accelerometer data arrived")
             rows = len(accel_df.index)
+            print( accel_df.tail(1) )
+
 
 def create_client(host, port, username, password, clientid):
     """Creating an MQTT Client Object"""
@@ -65,7 +67,6 @@ def on_message(client, userdata, message):
     try:
         decoded_message = str(message.payload.decode("utf-8", "ignore"))
         data = json.loads(decoded_message)
-        print(f"Received data: {data}")
         # Pass information here
         global accel_df
         accel_df = accel_df.append(data, ignore_index=True)
