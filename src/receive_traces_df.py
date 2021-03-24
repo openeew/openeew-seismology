@@ -6,6 +6,7 @@ import pandas as pd
 
 accel_df = pd.DataFrame()
 
+
 def run():
     """Main method that parses command options and executes the rest of the script"""
     parser = ArgumentParser()
@@ -33,10 +34,10 @@ def run():
     rows = 0
     client.loop_start()
     while True:
-        if rows != len(accel_df.index) :
-            print( "More accelerometer data arrived")
+        if rows != len(accel_df.index):
+            print("More accelerometer data arrived")
             rows = len(accel_df.index)
-            print( accel_df.tail(1) )
+            print(accel_df.tail(1))
 
 
 def create_client(host, port, username, password, clientid):
