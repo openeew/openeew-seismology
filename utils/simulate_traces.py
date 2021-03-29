@@ -72,9 +72,9 @@ def publish_jsonl(data_path, client, topic):
             data = data.append([json.loads(line) for line in json_array])
 
     # create a vector of 'deplays' that will make the data chunks come at the right time
-    data.sort_values(by=['cloud_t'], inplace=True)
-    timediff = data['cloud_t'].diff()
-    timediff = timediff.iloc[1:].append(pd.Series([0]))/1
+    data.sort_values(by=["cloud_t"], inplace=True)
+    timediff = data["cloud_t"].diff()
+    timediff = timediff.iloc[1:].append(pd.Series([0])) / 1
 
     # loop over all json elements in the json array and publish to MQTT
     for i in range(len(data)):
@@ -82,7 +82,11 @@ def publish_jsonl(data_path, client, topic):
         client.publish(topic, json.dumps(json_str))
         time.sleep(timediff.iloc[i])
 
-        print(datetime.utcfromtimestamp(data['cloud_t'].iloc[i]).strftime('%Y-%m-%d %H:%M:%S'))
+        print(
+            datetime.utcfromtimestamp(data["cloud_t"].iloc[i]).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+        )
 
 
 run()

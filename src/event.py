@@ -34,7 +34,6 @@ class Event:
         self.travel_times = travel_times
         self.active_events = {}
 
-
     def find_and_locate(self):
 
         # 1. Get  new detections
@@ -78,28 +77,26 @@ class Event:
         print(self.detections.data)
         print(self.events)
 
-    
     def get_detections(self):
         """Get new detections from the detection table"""
 
         # Get new detections
-        new_detections = self.detections.data[self.detections.data['event_id'].isnull()]
+        new_detections = self.detections.data[self.detections.data["event_id"].isnull()]
 
         return new_detections
 
-    
     def set_new_event(self, new_index, new_detection):
         """This sets a new event in the class"""
 
         # Get event ID
         try:
-            event_id = self.events.data['event_id'].to_list()
+            event_id = self.events.data["event_id"].to_list()
             event_id.append(max(self.active_events.keys()))
 
-            event_id = max(event_id)+1
+            event_id = max(event_id) + 1
         except:
             event_id = 1
-        
+
         self.active_events[event_id] = {}
 
         # Get location and magnitude based on the first detection
@@ -108,12 +105,11 @@ class Event:
         # Associate detection with event
         self.detections.data.loc[new_index, "event_id"] = event_id
 
-    
     def prior_loc(self):
         """
         This function sets the prior probability distribution for earthquake location
 
-        The function is rather a placeholder for a more sophisticated initial distrubution 
+        The function is rather a placeholder for a more sophisticated initial distrubution
         given by historical seismicity etc.
         """
 
@@ -121,7 +117,6 @@ class Event:
 
         return loc_prob
 
-    
     def prior_mag(self):
         """
         This function sets the prior probability distribution for magnitude
@@ -181,7 +176,6 @@ class Event:
         # return the probability function
         return mag_prob, mag_bins
 
-    
     def get_loc_not_yet_arrived(self, event_id, new_detection):
         """
         Updates location for a new event
@@ -200,12 +194,25 @@ class Event:
         device_loc = self.devices.data
 
         # get location of all the not-yet arrived devices
-        loc_nya = [(device_loc[device_loc['device_id']==n]["longitude"].to_list()[0], 
-            device_loc[device_loc['device_id']==n]["latitude"].to_list()[0]) for n in nya_devices]
+        loc_nya = [
+            (
+                device_loc[device_loc["device_id"] == n]["longitude"].to_list()[0],
+                device_loc[device_loc["device_id"] == n]["latitude"].to_list()[0],
+            )
+            for n in nya_devices
+        ]
 
         # get location of all the detected device
-        loc_det = [(device_loc[device_loc['device_id']==first_device]["longitude"].to_list()[0], 
-            device_loc[device_loc['device_id']==first_device]["latitude"].to_list()[0])]
+        loc_det = [
+            (
+                device_loc[device_loc["device_id"] == first_device][
+                    "longitude"
+                ].to_list()[0],
+                device_loc[device_loc["device_id"] == first_device][
+                    "latitude"
+                ].to_list()[0],
+            )
+        ]
 
         # append the loc_det at the beginning
         loc_all = loc_det + loc_nya
@@ -241,23 +248,21 @@ class Event:
         best_prob = loc_prior + inside
 
         # and replace the prob with the  best prob
-        self.active_events[event_id] = {'loc_prob': best_prob}
-
+        self.active_events[event_id] = {"loc_prob": best_prob}
 
     def get_active_devices(self):
         """Grabs all the devices that are sending data
-        
+
         This functions as a placeholder for more sophisticated function that
         would grab active devices from some device SOH info
         """
-        
+
         try:
             device_id = self.devices.data["device_id"]
         except:
             device_id = None
 
         return device_id
-
 
     def globe_distance(self, lat1, lon1, lat2, lon2):
 
@@ -282,26 +287,28 @@ class Event:
 
         return distance
 
-
     def get_sta_delta(self, event_id, sta, **kwargs):
 
-        sta_lat = self.devices.data[self.devices.data['device_id']==sta]['latitude']
-        sta_lon = self.devices.data[self.devices.data['device_id']==sta]['longitude']
+        sta_lat = self.devices.data[self.devices.data["device_id"] == sta]["latitude"]
+        sta_lon = self.devices.data[self.devices.data["device_id"] == sta]["longitude"]
 
         if "eq_lat" in kwargs.keys():
             eq_lat = kwargs["eq_lat"]
         else:
-            eq_lat = self.events.data[self.events.data['event_id']==event_id]['lat'].iloc[-1]
+            eq_lat = self.events.data[self.events.data["event_id"] == event_id][
+                "lat"
+            ].iloc[-1]
 
         if "eq_lon" in kwargs.keys():
             eq_lon = kwargs["eq_lon"]
         else:
-            eq_lon = self.events.data[self.events.data['event_id']==event_id]['lon'].iloc[-1]
+            eq_lon = self.events.data[self.events.data["event_id"] == event_id][
+                "lon"
+            ].iloc[-1]
 
         epic_dist = self.globe_distance(sta_lat, sta_lon, eq_lat, eq_lon)
 
         return epic_dist
-
 
     def time_since_last(self, time_now):
         """
@@ -311,7 +318,6 @@ class Event:
         last_det_time = time_now - max([n["time"] for n in self.detections.values()])
 
         return last_det_time
-
 
     def num_of_dets(self):
         """
@@ -323,7 +329,6 @@ class Event:
         )
 
         return number_of_detections
-
 
     def voronoi_finite_polygons_2d(self, vor, radius=None):
         """
@@ -407,14 +412,13 @@ class Event:
 
         return new_regions, np.asarray(new_vertices)
 
-    
     def get_best_location(self, event_id, add_prob=0):
 
-        lat = self.travel_times['grid_lat']
-        lon = self.travel_times['grid_lon']
+        lat = self.travel_times["grid_lat"]
+        lon = self.travel_times["grid_lon"]
 
         # initial probability is equal to the prior
-        loc_prob = self.active_events[event_id]['loc_prob']
+        loc_prob = self.active_events[event_id]["loc_prob"]
 
         # add aditional probability (for calling the function by the associator)
         loc_prob = loc_prob + add_prob
@@ -425,7 +429,9 @@ class Event:
         best_depth = self.params["eq_depth"]  # depth is fixed for all
 
         # get first detection
-        first_det = self.detections.data[self.detections.data['event_id']==event_id].iloc[0]
+        first_det = self.detections.data[
+            self.detections.data["event_id"] == event_id
+        ].iloc[0]
 
         # get origin time based on the location and the first detection
         first_sta = first_det["device_id"]
@@ -434,7 +440,6 @@ class Event:
         best_orig_time = first_time - sta_travel_time[0]
 
         return best_lat, best_lon, best_depth, best_orig_time
-
 
     def get_magnitude(self, event_id, best_lat, best_lon):
         """
@@ -448,12 +453,14 @@ class Event:
         mag_prob, mag_bins = self.prior_mag()
 
         # get all detections
-        detections = self.detections.data[self.detections.data['event_id']==event_id]
+        detections = self.detections.data[self.detections.data["event_id"] == event_id]
 
         for _, det in detections.iterrows():
 
             det_sta = det["device_id"]
-            pd_all = det[['mag1','mag2','mag3','mag4','mag5', 'mag6','mag7','mag8','mag9']]
+            pd_all = det[
+                ["mag1", "mag2", "mag3", "mag4", "mag5", "mag6", "mag7", "mag8", "mag9"]
+            ]
             pd = [n for n in pd_all if n is not None]
 
             try:
@@ -466,7 +473,9 @@ class Event:
                 std = self.params[pd_type][3]
 
                 # Normalize the displacement for the epicentral distance of 1 km
-                dist = self.get_sta_delta(event_id, sta=det_sta, eq_lat=best_lat, eq_lon=best_lon)
+                dist = self.get_sta_delta(
+                    event_id, sta=det_sta, eq_lat=best_lat, eq_lon=best_lon
+                )
                 pd = np.log10(pd) + c * np.log10(dist + 1)
 
                 # Calculate station magnitude from pd given the linear function with a, b, c
@@ -495,31 +504,35 @@ class Event:
 
         return magnitude, conf2, conf16, conf84, conf98
 
-
     def update_events(self, event_id):
 
         # Update location
-        best_lat, best_lon, best_depth, best_orig_time = self.get_best_location(event_id)
-        
+        best_lat, best_lon, best_depth, best_orig_time = self.get_best_location(
+            event_id
+        )
+
         # Update magnitude
-        magnitude, conf2, conf16, conf84, conf98 = self.get_magnitude(event_id, best_lat, best_lon)
+        magnitude, conf2, conf16, conf84, conf98 = self.get_magnitude(
+            event_id, best_lat, best_lon
+        )
 
         # Number of associated phases
-        num_assoc = len(self.detections.data[self.detections.data['event_id']==event_id])
+        num_assoc = len(
+            self.detections.data[self.detections.data["event_id"] == event_id]
+        )
 
         # Add line in events
         new_event = {
-            'event_id': event_id,
-            'cloud_t': 0,
-            'orig_time': best_orig_time,
-            'lat': best_lat,
-            'lon': best_lon,
-            'dep': best_depth,
-            'mag': magnitude,
-            'num_assoc': num_assoc
-        } 
+            "event_id": event_id,
+            "cloud_t": 0,
+            "orig_time": best_orig_time,
+            "lat": best_lat,
+            "lon": best_lon,
+            "dep": best_depth,
+            "mag": magnitude,
+            "num_assoc": num_assoc,
+        }
         self.events.update(new_event)
-
 
     def associate(self, event_id, new_index, new_detection):
         """
@@ -527,10 +540,12 @@ class Event:
         """
 
         # get all detections of the event
-        all_detections = self.detections.data[self.detections.data['event_id']==event_id]
+        all_detections = self.detections.data[
+            self.detections.data["event_id"] == event_id
+        ]
 
         # get all detected devices
-        detected_devices = all_detections['device_id']
+        detected_devices = all_detections["device_id"]
 
         # get the new device id and detection time
         new_detection_id = new_detection["detection_id"]
@@ -572,7 +587,9 @@ class Event:
             # ASSOCIATE THE NEW DETECTION
 
             # get updated potential location of the eq epicenter
-            best_lat, best_lon, _, _ = self.get_best_location(event_id, add_prob=new_prob)
+            best_lat, best_lon, _, _ = self.get_best_location(
+                event_id, add_prob=new_prob
+            )
 
             # test the RMS of mispics
             tt_precalc = self.travel_times["vector"]
@@ -609,7 +626,9 @@ class Event:
             if misfit_mean < assoc_win:
 
                 # if associated, append the probabbilities
-                self.active_events[event_id]["loc_prob"] = self.active_events[event_id]["loc_prob"] + new_prob
+                self.active_events[event_id]["loc_prob"] = (
+                    self.active_events[event_id]["loc_prob"] + new_prob
+                )
 
                 # add new detection to detections
                 self.detections.data.loc[new_index, "event_id"] = event_id
@@ -618,7 +637,6 @@ class Event:
 
             else:
                 return False
-
 
     def get_sigma(self, event_id, new_device, det_device):
         """
@@ -648,11 +666,9 @@ class Event:
 
         return sigma
 
-
-
     def run(self):
         # run loop indefinitely
         while True:
 
             self.find_and_locate()
-            time.sleep(.5)
+            time.sleep(0.5)

@@ -7,7 +7,6 @@ from paho.mqtt.client import Client as MqttClient
 class DeviceReceiver:
     """This class subscribes to the MQTT and receivces raw data"""
 
-
     def __init__(self, df_holder) -> None:
         """Initializes the DataReceiver object"""
         super().__init__()
@@ -22,7 +21,11 @@ class DeviceReceiver:
             "--clientid", help="MQTT clientID", default="recieve_devices_simulator"
         )
         parser.add_argument(
-            "--host", help="MQTT host", nargs="?", const="localhost", default="localhost"
+            "--host",
+            help="MQTT host",
+            nargs="?",
+            const="localhost",
+            default="localhost",
         )
         parser.add_argument(
             "--port", help="MQTT port", nargs="?", type=int, const=1883, default=1883
@@ -39,7 +42,6 @@ class DeviceReceiver:
 
         client.loop_forever()
 
-
     def create_client(self, host, port, username, password, clientid):
         """Creating an MQTT Client Object"""
         client = MqttClient(clientid)
@@ -52,7 +54,6 @@ class DeviceReceiver:
         client.connect(host=host, port=port)
         return client
 
-
     def on_connect(self, client, userdata, flags, resultcode):
         """Upon connecting to an MQTT server, subscribe to a topic
         the production topic is 'iot-2/type/OpenEEW/id/+/mon'"""
@@ -61,15 +62,13 @@ class DeviceReceiver:
         print(f"✅ Connected with result code {resultcode}")
         client.subscribe(topic)
 
-
     def on_message(self, client, userdata, message):
         """When a message is sent to a subscribed topic,
         decode the message and send it to another method"""
         try:
             decoded_message = str(message.payload.decode("utf-8", "ignore"))
             data = json.loads(decoded_message)
-            
+
             self.df_holder.update(data)
         except BaseException as exception:
             print(exception)
-
