@@ -2,24 +2,10 @@
 This file sets parameters used in real-time OpenEEW algorithm
 """
 
-# DATABASE
-db_name = "openeew"  # database name
-host = "localhost"  # database host
-user = "root"  # database user
-passwd = ""  # database password
-
-# PATH TO DATA AND DEVICE
-device_path = (
-    "data/devices/devices_locations.csv"  # path to folder with device locations
-)
-data_path = "data/2020_7_2"  # path to folder with .jsonl data
-
 # BUFFER AND SLEEP
 sleep_time = 0  # sleep_time = 1 s to simulate real time observations
 samp_rate = 31.25  # sample rate
 buffer_len = 14  # buffer_len*samp_rate must be longer than array_samp
-db_init = False  # set to True if you want to initiate a new db
-populate_raw = True  # set to True if you want to populate raw_data with raw data
 
 # TRAVEL TIME GRID AND CALCULATION
 lat_min = 13  # minimum latitude
@@ -71,15 +57,9 @@ mag8 = (1.39, 5.21, 1, 0.52)
 mag9 = (1.32, 5.19, 1, 0.47)
 
 
-db = {"db_name": db_name, "host": host, "user": user, "passwd": passwd}
-
 main_params = {
-    "device_path": device_path,
-    "data_path": data_path,
     "sleep_time": sleep_time,
-    "buffer_len": buffer_len,
-    "db_init": db_init,
-    "populate_raw": populate_raw,
+    "buffer_len": buffer_len
 }
 
 tt_params = {
@@ -105,7 +85,7 @@ det_params = {
     "detection_model_name": detection_model_name,
 }
 
-mag_params = {
+ev_params = {
     "mag1": mag1,
     "mag2": mag2,
     "mag3": mag3,

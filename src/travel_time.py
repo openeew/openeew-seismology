@@ -82,27 +82,6 @@ def globe_distance(lat1, lon1, lat2, lon2):
     return distance
 
 
-def fetch_all_devices(db):
-
-    # connect to the database
-    mydb = mysql.connector.connect(
-        host=db["host"], user=db["user"], passwd=db["passwd"], database=db["db_name"]
-    )
-
-    # set the database pointer
-    cur = mydb.cursor()
-
-    # get all the devices
-    sql = "SELECT device_id, latitude, longitude FROM devices"
-    cur.execute(sql)
-
-    # fetch the result
-    devices = cur.fetchall()
-
-    # return all stations
-    return devices
-
-
 def precalculate_times(max_dist, step, eq_depth, model):
 
     # to ensure small tt errors the step for precalculation of travel times
@@ -128,7 +107,7 @@ def precalculate_times(max_dist, step, eq_depth, model):
     return tt_precalc
 
 
-def calculate_trave_times(db, params):
+def calculate_trave_times(params):
 
     # set params from params
     lat_min = params["lat_min"]
@@ -146,6 +125,10 @@ def calculate_trave_times(db, params):
 
     if calculate_open == "calculate":
 
+        # This needs to receive the device dataframe,
+        # but probs does not need to run all the time...
+        # So it needs some more work
+
         print("")
         print("----------")
         print("CALCULATING TRAVEL TIMES")
@@ -157,15 +140,10 @@ def calculate_trave_times(db, params):
         # precalculate times
         tt_precalc = precalculate_times(max_dist, step, eq_depth, model)
 
-        # connect to the database
-        mydb = mysql.connector.connect(
-            host=db["host"],
-            user=db["user"],
-            passwd=db["passwd"],
-            database=db["db_name"],
-        )
+        # Here get the devices
+        # list of [(device_id, latitude, longitude)]
+        # devices = ....
 
-        devices = fetch_all_devices(db)
         grid = make_grid(
             lat_min=lat_min,
             lat_max=lat_max,

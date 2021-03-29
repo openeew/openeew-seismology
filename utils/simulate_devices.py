@@ -54,7 +54,6 @@ def publish_json(client, topic, data):
         json_obj = json.dumps(device)
         print(f"Sending device {json_obj}")
         client.publish(topic, json.dumps(json_obj))
-        sleep(1)
 
 
 def create_client(host, port, username, password):
