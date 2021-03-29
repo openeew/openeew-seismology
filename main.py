@@ -8,7 +8,14 @@ import pickle
 from threading import Thread
 
 from params import main_params, tt_params, det_params, ev_params
-from src import data_holders, receive_traces, receive_devices, detection, event, travel_time
+from src import (
+    data_holders,
+    receive_traces,
+    receive_devices,
+    detection,
+    event,
+    travel_time,
+)
 
 __author__ = "Vaclav Kuna"
 __copyright__ = ""
@@ -51,12 +58,20 @@ def main():
     receive_data_process.start()
 
     # We create and start detection worker
-    compute = detection.Detect(raw_data=raw_data, detections=detections, params=det_params)
+    compute = detection.Detect(
+        raw_data=raw_data, detections=detections, params=det_params
+    )
     detect_process = Thread(target=compute.run)
     detect_process.start()
 
     # We create and start event worker
-    compute = event.Event(devices=devices, detections=detections, events=events, travel_times=travel_times, params=ev_params)
+    compute = event.Event(
+        devices=devices,
+        detections=detections,
+        events=events,
+        travel_times=travel_times,
+        params=ev_params,
+    )
     event_process = Thread(target=compute.run)
     event_process.start()
 

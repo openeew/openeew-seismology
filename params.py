@@ -57,10 +57,7 @@ mag8 = (1.39, 5.21, 1, 0.52)
 mag9 = (1.32, 5.19, 1, 0.47)
 
 
-main_params = {
-    "sleep_time": sleep_time,
-    "buffer_len": buffer_len
-}
+main_params = {"sleep_time": sleep_time, "buffer_len": buffer_len}
 
 tt_params = {
     "lat_min": lat_min,

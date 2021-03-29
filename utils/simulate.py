@@ -1,4 +1,3 @@
-
 import simulate_devices
 import simulate_traces
 

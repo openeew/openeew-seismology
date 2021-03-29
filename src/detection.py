@@ -32,7 +32,6 @@ class Detect:
         self.detections = detections
         self.params = params
 
-
     def detect(self):
 
         if self.params["det_type"] == "stalta":
@@ -48,7 +47,6 @@ class Detect:
         # do station magnitude
         self.station_magnitude()
 
-
     def detect_stalta(self):
 
         STA_len = self.params["STA_len"]
@@ -57,18 +55,22 @@ class Detect:
         det_off_win = self.params["no_det_win"]
 
         try:
-            devices = self.raw_data.data['device_id'].unique()
+            devices = self.raw_data.data["device_id"].unique()
         except:
             devices = []
-            
+
         for device in devices:
 
             det_time = []
 
-            for channel in ['x', 'y', 'z']:
+            for channel in ["x", "y", "z"]:
 
-                trace = self.raw_data.data[self.raw_data.data['device_id']==device][channel].iloc[-(LTA_len+STA_len):]
-                time = self.raw_data.data[self.raw_data.data['device_id']==device]['cloud_t'].iloc[-(LTA_len+STA_len):]
+                trace = self.raw_data.data[self.raw_data.data["device_id"] == device][
+                    channel
+                ].iloc[-(LTA_len + STA_len) :]
+                time = self.raw_data.data[self.raw_data.data["device_id"] == device][
+                    "cloud_t"
+                ].iloc[-(LTA_len + STA_len) :]
 
                 try:
                     STALTA = self.standard_STALTA(trace)
@@ -79,24 +81,40 @@ class Detect:
 
             if len(det_time) > 0:
 
-                past_detections = self.detections.data[(self.detections.data['device_id']==device) & 
-                    (self.detections.data['cloud_t']-max(det_time)+det_off_win)>0]
-                
-                if past_detections.shape[0]==0:
+                past_detections = self.detections.data[
+                    (self.detections.data["device_id"] == device)
+                    & (self.detections.data["cloud_t"] - max(det_time) + det_off_win)
+                    > 0
+                ]
+
+                if past_detections.shape[0] == 0:
 
                     try:
-                        detection_id = self.detections.data['detection_id'].iloc[-1] + 1
+                        detection_id = self.detections.data["detection_id"].iloc[-1] + 1
                     except:
                         detection_id = 1
 
-                    new_detection = pd.DataFrame({'detection_id': detection_id,'device_id': device, 'cloud_t': min(det_time),
-                        'mag1': None, 'mag2': None, 'mag3': None, 'mag4': None, 'mag5': None,
-                        'mag6': None, 'mag7': None, 'mag8': None, 'mag9': None, 'event_id': None
-                        }, index=[0])
+                    new_detection = pd.DataFrame(
+                        {
+                            "detection_id": detection_id,
+                            "device_id": device,
+                            "cloud_t": min(det_time),
+                            "mag1": None,
+                            "mag2": None,
+                            "mag3": None,
+                            "mag4": None,
+                            "mag5": None,
+                            "mag6": None,
+                            "mag7": None,
+                            "mag8": None,
+                            "mag9": None,
+                            "event_id": None,
+                        },
+                        index=[0],
+                    )
 
                     self.detections.update(new_detection)
 
-    
     def standard_STALTA(self, trace):
 
         STA_len = self.params["STA_len"]
@@ -117,8 +135,12 @@ class Detect:
 
         # the beginning of the LTA
         LTA_beg_vector = trace[0:STA_len]  # take the start of the array
-        LTA_beg_mat = np.tile(LTA_beg_vector, (STA_len, 1))  # repeat the vector in matrix
-        LTA_beg_mat = np.tril(LTA_beg_mat, k=-1)  # do the lower triangular transformation
+        LTA_beg_mat = np.tile(
+            LTA_beg_vector, (STA_len, 1)
+        )  # repeat the vector in matrix
+        LTA_beg_mat = np.tril(
+            LTA_beg_mat, k=-1
+        )  # do the lower triangular transformation
 
         # the end of the LTA and STA (they  are the same)
         STALTA_end_vector = trace[
@@ -132,9 +154,15 @@ class Detect:
         )  # do the lower triangular transformation
 
         # the beginning of the STA
-        STA_beg_vector = trace[LTA_len - STA_len : LTA_len]  # take the start of the array
-        STA_beg_mat = np.tile(STA_beg_vector, (STA_len, 1))  # repeat the vector in matrix
-        STA_beg_mat = np.tril(STA_beg_mat, k=-1)  # do the lower triangular transformation
+        STA_beg_vector = trace[
+            LTA_len - STA_len : LTA_len
+        ]  # take the start of the array
+        STA_beg_mat = np.tile(
+            STA_beg_vector, (STA_len, 1)
+        )  # repeat the vector in matrix
+        STA_beg_mat = np.tril(
+            STA_beg_mat, k=-1
+        )  # do the lower triangular transformation
 
         # calculate LTA vector
         LTA = (
@@ -153,7 +181,6 @@ class Detect:
 
         return STALTA
 
-    
     def get_pd(self, trace, time, det_time):
 
         """
@@ -194,7 +221,6 @@ class Detect:
         # Return the peak ground displacement
         return pd_max
 
-
     def station_magnitude(self):
 
         """This function updates the detection table with
@@ -208,51 +234,57 @@ class Detect:
 
         # what is the vertical channel?
         vert_chan = self.params["vert_chan"]
-        
+
         # what the time is
         try:
-            time_now = self.raw_data.data['cloud_t'].iloc[-1]
+            time_now = self.raw_data.data["cloud_t"].iloc[-1]
         except:
             return
 
         # get the detections less than 10 s old
-        detections = self.detections.data[(self.detections.data['cloud_t']-time_now+10)>0]
+        detections = self.detections.data[
+            (self.detections.data["cloud_t"] - time_now + 10) > 0
+        ]
 
         # for each detection, do
         for index, detection in detections.iterrows():
 
             try:
-                device_id = detection['device_id']
-                det_cloud_t = detection['cloud_t']
+                device_id = detection["device_id"]
+                det_cloud_t = detection["cloud_t"]
 
-                trace = self.raw_data.data[(self.raw_data.data['device_id']==device_id) & (self.raw_data.data['cloud_t']>det_cloud_t)][vert_chan]
-                time = self.raw_data.data[(self.raw_data.data['device_id']==device_id) & (self.raw_data.data['cloud_t']>det_cloud_t)]['cloud_t']
+                trace = self.raw_data.data[
+                    (self.raw_data.data["device_id"] == device_id)
+                    & (self.raw_data.data["cloud_t"] > det_cloud_t)
+                ][vert_chan]
+                time = self.raw_data.data[
+                    (self.raw_data.data["device_id"] == device_id)
+                    & (self.raw_data.data["cloud_t"] > det_cloud_t)
+                ]["cloud_t"]
 
                 # get the peak ground displacement for [1,2,3,4,5,6,7,8,9] s windows
                 pd_max = self.get_pd(trace, time, det_cloud_t)
 
                 entry = tuple([None if np.isnan(n) else n for n in pd_max])
 
-                self.detections.data.loc[index, 'mag1'] = entry[0]
-                self.detections.data.loc[index, 'mag2'] = entry[1]
-                self.detections.data.loc[index, 'mag3'] = entry[2]
-                self.detections.data.loc[index, 'mag4'] = entry[3]
-                self.detections.data.loc[index, 'mag5'] = entry[4]
-                self.detections.data.loc[index, 'mag6'] = entry[5]
-                self.detections.data.loc[index, 'mag7'] = entry[6]
-                self.detections.data.loc[index, 'mag8'] = entry[7]
-                self.detections.data.loc[index, 'mag9'] = entry[8]
+                self.detections.data.loc[index, "mag1"] = entry[0]
+                self.detections.data.loc[index, "mag2"] = entry[1]
+                self.detections.data.loc[index, "mag3"] = entry[2]
+                self.detections.data.loc[index, "mag4"] = entry[3]
+                self.detections.data.loc[index, "mag5"] = entry[4]
+                self.detections.data.loc[index, "mag6"] = entry[5]
+                self.detections.data.loc[index, "mag7"] = entry[6]
+                self.detections.data.loc[index, "mag8"] = entry[7]
+                self.detections.data.loc[index, "mag9"] = entry[8]
 
             except:
                 pass
-
 
     def run(self):
         # run loop indefinitely
         while True:
             self.detect()
-            time.sleep(.5)
-
+            time.sleep(0.5)
 
 
 # # FUNCTIONS FOR ML IMPLEMENTATION
