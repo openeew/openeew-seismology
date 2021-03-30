@@ -107,7 +107,7 @@ def precalculate_times(max_dist, step, eq_depth, model):
     return tt_precalc
 
 
-def calculate_trave_times(params):
+def run(params):
 
     # set params from params
     lat_min = params["lat_min"]
@@ -178,3 +178,6 @@ def calculate_trave_times(params):
             travel_time = pickle.load(f)
 
         return travel_time
+
+
+run(params)
