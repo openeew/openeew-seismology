@@ -69,8 +69,12 @@ def get_tt_vector(params):
             tt[i] = time_out[0].time
 
             # print progress percent
-            progress = str(int((i/len(dist))*100))
-            sys.stdout.write("\r  No precalculated velocity model found. Calculating a new one: " + progress +"%")
+            progress = str(int((i / len(dist)) * 100))
+            sys.stdout.write(
+                "\r  No precalculated velocity model found. Calculating a new one: "
+                + progress
+                + "%"
+            )
 
         # make a dictionary out of it
         tt_precalc = {"dist": dist, "travel_time": tt}
@@ -89,7 +93,7 @@ def get_grid(params):
     lon_min = params["lon_min"]
     lon_max = params["lon_max"]
     step = params["step"]
-    
+
     lat = np.arange(start=lat_min, stop=lat_max, step=step)
     lon = np.arange(start=lon_min, stop=lon_max, step=step)
 
@@ -98,8 +102,10 @@ def get_grid(params):
     return (xv, yv)
 
 
-def get_travel_time(tt_precalc, grid_lat, grid_lon, device_id, dev_lat, dev_lon, params):
-    
+def get_travel_time(
+    tt_precalc, grid_lat, grid_lon, device_id, dev_lat, dev_lon, params
+):
+
     tt_path = params["tt_path"]
 
     # try to load pre-computed travel time vector from file
@@ -126,7 +132,9 @@ def get_travel_time(tt_precalc, grid_lat, grid_lon, device_id, dev_lat, dev_lon,
                 point_lon = yv[i, j]
 
                 # using mine
-                distance_in_degree = globe_distance(point_lat, point_lon, dev_lat, dev_lon)
+                distance_in_degree = globe_distance(
+                    point_lat, point_lon, dev_lat, dev_lon
+                )
 
                 # find the closest time from the tt_precalc and place it in the grid
                 tt[i, j] = tt_precalc["travel_time"][
@@ -135,10 +143,14 @@ def get_travel_time(tt_precalc, grid_lat, grid_lon, device_id, dev_lat, dev_lon,
 
             with open(tt_path + "/tt_" + device_id + ".pkl", "wb") as f:
                 pickle.dump(tt, f, pickle.HIGHEST_PROTOCOL)
-            
+
             # print progress percent
-            progress = str(int((i/nx)*100))
-            sys.stdout.write("\r     No precalculated velocity grid for the device found. Calculating a new one: " + progress +"%")
+            progress = str(int((i / nx) * 100))
+            sys.stdout.write(
+                "\r     No precalculated velocity grid for the device found. Calculating a new one: "
+                + progress
+                + "%"
+            )
 
     return tt
 
@@ -166,5 +178,3 @@ def globe_distance(lat1, lon1, lat2, lon2):
     distance = R * c / deg2km
 
     return distance
-
-

@@ -60,8 +60,11 @@ class Event:
                 # if it could not be associated with an existing event, create a new one
                 self.set_new_event(new_index, new_detection)
 
-            print('⭐ New detection at the device ' + new_detection['device_id'] + '.')
-            print('     Associated with event id: ' + str(self.detections.data['event_id'].iloc[-1]))
+            print("⭐ New detection at the device " + new_detection["device_id"] + ".")
+            print(
+                "     Associated with event id: "
+                + str(self.detections.data["event_id"].iloc[-1])
+            )
 
         # 3. Update location and magnitude of each event
         for event_id in list(self.active_events.keys()):
@@ -77,8 +80,12 @@ class Event:
             else:
                 self.update_events(event_id)
 
-                json_data = self.events.data[self.events.data['event_id']==event_id].iloc[-1].to_json()
-                publish_mqtt.run('event', json_data)
+                json_data = (
+                    self.events.data[self.events.data["event_id"] == event_id]
+                    .iloc[-1]
+                    .to_json()
+                )
+                publish_mqtt.run("event", json_data)
 
     def get_detections(self):
         """Get new detections from the detection table"""
@@ -318,11 +325,13 @@ class Event:
         Get time elapsed since the last detection
         """
         # get timestamp for the received trace
-        dt = datetime.datetime.now(datetime.timezone.utc)  
+        dt = datetime.datetime.now(datetime.timezone.utc)
         utc_time = dt.replace(tzinfo=datetime.timezone.utc)
         cloud_t = utc_time.timestamp()
 
-        last_detection = self.detections.data[self.detections.data['event_id']==event_id]['cloud_t'].iloc[-1]
+        last_detection = self.detections.data[
+            self.detections.data["event_id"] == event_id
+        ]["cloud_t"].iloc[-1]
         last_det_time = cloud_t - last_detection
 
         return last_det_time
@@ -444,7 +453,9 @@ class Event:
         # get origin time based on the location and the first detection
         first_sta = first_det["device_id"]
         first_time = first_det["cloud_t"]
-        sta_travel_time = self.travel_times.travel_times[first_sta][loc_prob == loc_prob.max()]
+        sta_travel_time = self.travel_times.travel_times[first_sta][
+            loc_prob == loc_prob.max()
+        ]
         best_orig_time = first_time - sta_travel_time[0]
 
         return best_lat, best_lon, best_depth, best_orig_time
@@ -542,11 +553,18 @@ class Event:
         }
         self.events.update(new_event)
 
-        print('🔥 Event id ' + str(event_id) + ' in progress:')
-        print('     Magnitude: ' + str(magnitude) +
-            ', Lat: ' + str(best_lat) +
-            ', Lon: ' + str(best_lon) +
-            ', Associated detections: ' + str(num_assoc) + '.')
+        print("🔥 Event id " + str(event_id) + " in progress:")
+        print(
+            "     Magnitude: "
+            + str(magnitude)
+            + ", Lat: "
+            + str(best_lat)
+            + ", Lon: "
+            + str(best_lon)
+            + ", Associated detections: "
+            + str(num_assoc)
+            + "."
+        )
 
     def associate(self, event_id, new_index, new_detection):
         """
@@ -684,4 +702,4 @@ class Event:
         # run loop indefinitely
         while True:
             self.find_and_locate()
-            time.sleep(self.params['sleep_time'])
+            time.sleep(self.params["sleep_time"])

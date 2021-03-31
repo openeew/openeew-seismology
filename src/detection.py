@@ -287,9 +287,7 @@ class Detect:
         # run loop indefinitely
         while True:
             self.detect()
-            time.sleep(self.params['sleep_time'])
-
-
+            time.sleep(self.params["sleep_time"])
 
 
 # # FUNCTIONS FOR ML IMPLEMENTATION

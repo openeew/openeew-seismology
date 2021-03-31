@@ -7,10 +7,10 @@ lat_min = 13  # minimum latitude
 lat_max = 23  # maximum latitude
 lon_min = -106  # minimum longitude
 lon_max = -90  # maximum longitude
-step = .1  # step in degrees
+step = 0.01  # step in degrees
 eq_depth = 20  # earthquake depth
 vel_model = "iasp91"  # velocity model from obspy list
-tt_path = "./obj/travel_times" # relative path to the travel_time folder
+tt_path = "./obj/travel_times"  # relative path to the travel_time folder
 buffer_len = 15  # buffer_len*samp_rate must be longer than array_samp
 
 # DETECTION
@@ -22,7 +22,9 @@ array_samp = 352  # must be >= STA_len+LTA_len for 'stalta', or 300 for 'ml'
 STALTA_thresh = 3  # threshold for STA/LTA
 no_det_win = 60  # window without new detections after a detection
 vert_chan = "x"  # which channel is oriented in the vertical direction
-sleep_time = 1  # the detection algorithm is going to pause for this time after each loop
+sleep_time = (
+    1  # the detection algorithm is going to pause for this time after each loop
+)
 
 # LOCATION AND MAGNITUDE REGRESSION PARAMS
 tsl_max = 20  # save/discard event after this many seconds without a new detection
@@ -76,7 +78,7 @@ det_params = {
     "array_samp": array_samp,
     "detection_model_name": detection_model_name,
     "buffer_len": buffer_len,
-    "sleep_time": sleep_time
+    "sleep_time": sleep_time,
 }
 
 ev_params = {
@@ -100,5 +102,5 @@ ev_params = {
     "b_value": b_value,
     "assoc_win": assoc_win,
     "eq_depth": eq_depth,
-    "sleep_time": sleep_time
+    "sleep_time": sleep_time,
 }

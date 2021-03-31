@@ -24,9 +24,7 @@ class RawData:
         number_of_entires = len(data["x"])
         sr = data["sr"]
         data["device_id"] = [data["device_id"]] * number_of_entires
-        data["cloud_t"] = list(
-            cloud_t - np.arange(0, number_of_entires)[::-1] / sr
-        )
+        data["cloud_t"] = list(cloud_t - np.arange(0, number_of_entires)[::-1] / sr)
 
         # create a df
         df_new = pd.DataFrame(data)
@@ -37,14 +35,20 @@ class RawData:
     def drop(self, params):
 
         # get timestamp for the received trace
-        dt = datetime.datetime.now(datetime.timezone.utc)  
+        dt = datetime.datetime.now(datetime.timezone.utc)
         utc_time = dt.replace(tzinfo=datetime.timezone.utc)
         cloud_t = utc_time.timestamp()
 
         # drop all data older than cloud_t - buffer
         try:
-            self.data = self.data[(self.data['cloud_t'] + params['buffer_len']) >= cloud_t]
-            print("▫️ Size of data in the buffer " + str(int(sys.getsizeof(self.data)/1e5)/10) + " mb")
+            self.data = self.data[
+                (self.data["cloud_t"] + params["buffer_len"]) >= cloud_t
+            ]
+            print(
+                "▫️ Size of data in the buffer "
+                + str(int(sys.getsizeof(self.data) / 1e5) / 10)
+                + " mb"
+            )
         except:
             pass
 
@@ -130,19 +134,18 @@ class TravelTimes:
     print("✅ Created travel times instance.")
 
     def __init__(self, params):
-        
+
         # save travel time params
         self.params = params
 
         # load or calculate new travel time vector
         self.tt_vector = travel_time.get_tt_vector(params)
 
-        # create latitude and longitude grid 
+        # create latitude and longitude grid
         self.grid_lat, self.grid_lon = travel_time.get_grid(params)
 
         # create empty dictionary for travel times
         self.travel_times = {}
-
 
     def update(self, data):
 
@@ -153,7 +156,7 @@ class TravelTimes:
         device_lat = data["latitude"]
         device_lon = data["longitude"]
 
-        print('🔼 Received new device with ID ' + device_id + '.')
+        print("🔼 Received new device with ID " + device_id + ".")
 
         device_tt = travel_time.get_travel_time(
             self.tt_vector,
@@ -162,6 +165,7 @@ class TravelTimes:
             device_id,
             device_lat,
             device_lon,
-            self.params)
+            self.params,
+        )
 
         self.travel_times[device_id] = device_tt

@@ -70,7 +70,7 @@ class DataReceiver:
             data = json.loads(decoded_message)
 
             # get timestamp for the received trace
-            dt = datetime.datetime.now(datetime.timezone.utc)  
+            dt = datetime.datetime.now(datetime.timezone.utc)
             utc_time = dt.replace(tzinfo=datetime.timezone.utc)
             cloud_t = utc_time.timestamp()
 
