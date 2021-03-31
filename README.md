@@ -32,7 +32,7 @@ For the testing purposes, the algorithm is set up to use historical data. The da
 
 The diagram shows the basic flow of the program.
 
-![seismology_roadmap_v2_server](https://user-images.githubusercontent.com/37088604/111028616-08efe680-83f8-11eb-8cce-367c873da914.png)
+![seismology_roadmap_v3_server](https://user-images.githubusercontent.com/37088604/113195583-bc633280-9262-11eb-8080-156bf0eda363.png)
 
 - ### main.py
 
@@ -54,12 +54,9 @@ The detection.py handles the detection of earthquake primary (P) earthquake wave
 - ### event.py
   The event.py handles association, location and magnitude calculation of earthquakes.
 
-**Input:** Uses detections from the detections table in db
-**Output:** Earthquake events saved in obj/events
+**Input:** Uses detections from the detections table  
+**Output:** Earthquake events published to MQTT
 
-The event.py creates an event instance of a class that stores all the important information about the event. You can see the structure in the diagram below.
-
-![event_scheme](https://user-images.githubusercontent.com/37088604/111028535-8404cd00-83f7-11eb-86ab-3e96e73ad175.png)
 
 **Event association:** Event association is a process that gathers individual phase picks into events and throws away picks that are not associated to earthquakes (and are probably just noise).
 
