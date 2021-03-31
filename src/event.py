@@ -9,9 +9,10 @@ import scipy
 import matplotlib.pyplot as plt
 from inpoly import inpoly2
 import pickle
-from datetime import datetime
+import datetime
 import math
 import time
+from src import publish_mqtt
 
 __author__ = "Vaclav Kuna"
 __copyright__ = ""
@@ -59,23 +60,25 @@ class Event:
                 # if it could not be associated with an existing event, create a new one
                 self.set_new_event(new_index, new_detection)
 
+            print('⭐ New detection at the device ' + new_detection['device_id'] + '.')
+            print('     Associated with event id: ' + str(self.detections.data['event_id'].iloc[-1]))
+
         # 3. Update location and magnitude of each event
-        for event_id in self.active_events.keys():
+        for event_id in list(self.active_events.keys()):
 
-            # # time since the last detection
-            # tsl = self.time_since_last()
+            # time since the last detection
+            tsl = self.time_since_last(event_id)
 
-            # tsl_max = self.params["tsl_max"]
+            # Delete event if it is too old
+            if tsl > self.params["tsl_max"]:
+                del self.active_events[event_id]
 
-            # if tsl > tsl_max: # event is too old
-            #     del self.active_events[event_id]
+            # Or update location, magnitude, and origin time
+            else:
+                self.update_events(event_id)
 
-            # else:
-            # Update location, magnitude, and origin time
-            self.update_events(event_id)
-
-        print(self.detections.data)
-        print(self.events)
+                json_data = self.events.data[self.events.data['event_id']==event_id].iloc[-1].to_json()
+                publish_mqtt.run('event', json_data)
 
     def get_detections(self):
         """Get new detections from the detection table"""
@@ -113,7 +116,7 @@ class Event:
         given by historical seismicity etc.
         """
 
-        loc_prob = np.zeros_like(self.travel_times["grid_lat"])
+        loc_prob = np.zeros_like(self.travel_times.grid_lat)
 
         return loc_prob
 
@@ -222,8 +225,8 @@ class Event:
         regions, vertices = self.voronoi_finite_polygons_2d(vor)
 
         # get the lat and lon grid
-        lat_grid = self.travel_times["grid_lat"]
-        lon_grid = self.travel_times["grid_lon"]
+        lat_grid = self.travel_times.grid_lat
+        lon_grid = self.travel_times.grid_lon
 
         # get the polygon aroud the device with detection
         polygon = vertices[regions[0]]
@@ -310,12 +313,17 @@ class Event:
 
         return epic_dist
 
-    def time_since_last(self, time_now):
+    def time_since_last(self, event_id):
         """
         Get time elapsed since the last detection
         """
+        # get timestamp for the received trace
+        dt = datetime.datetime.now(datetime.timezone.utc)  
+        utc_time = dt.replace(tzinfo=datetime.timezone.utc)
+        cloud_t = utc_time.timestamp()
 
-        last_det_time = time_now - max([n["time"] for n in self.detections.values()])
+        last_detection = self.detections.data[self.detections.data['event_id']==event_id]['cloud_t'].iloc[-1]
+        last_det_time = cloud_t - last_detection
 
         return last_det_time
 
@@ -414,8 +422,8 @@ class Event:
 
     def get_best_location(self, event_id, add_prob=0):
 
-        lat = self.travel_times["grid_lat"]
-        lon = self.travel_times["grid_lon"]
+        lat = self.travel_times.grid_lat
+        lon = self.travel_times.grid_lon
 
         # initial probability is equal to the prior
         loc_prob = self.active_events[event_id]["loc_prob"]
@@ -436,7 +444,7 @@ class Event:
         # get origin time based on the location and the first detection
         first_sta = first_det["device_id"]
         first_time = first_det["cloud_t"]
-        sta_travel_time = self.travel_times[first_sta][loc_prob == loc_prob.max()]
+        sta_travel_time = self.travel_times.travel_times[first_sta][loc_prob == loc_prob.max()]
         best_orig_time = first_time - sta_travel_time[0]
 
         return best_lat, best_lon, best_depth, best_orig_time
@@ -534,6 +542,12 @@ class Event:
         }
         self.events.update(new_event)
 
+        print('🔥 Event id ' + str(event_id) + ' in progress:')
+        print('     Magnitude: ' + str(magnitude) +
+            ', Lat: ' + str(best_lat) +
+            ', Lon: ' + str(best_lon) +
+            ', Associated detections: ' + str(num_assoc) + '.')
+
     def associate(self, event_id, new_index, new_detection):
         """
         Calculate probabilities and associate new event
@@ -553,7 +567,7 @@ class Event:
         new_time = new_detection["cloud_t"]
 
         # set a new list of new probabilities
-        new_prob = np.zeros_like(self.travel_times["grid_lat"])
+        new_prob = np.zeros_like(self.travel_times.grid_lat)
 
         if new_device not in detected_devices:
 
@@ -571,8 +585,8 @@ class Event:
                 tt_prob = np.exp(
                     -(
                         (
-                            self.travel_times[det_device]
-                            - self.travel_times[new_device]
+                            self.travel_times.travel_times[det_device]
+                            - self.travel_times.travel_times[new_device]
                             - det_time
                             + new_time
                         )
@@ -592,7 +606,7 @@ class Event:
             )
 
             # test the RMS of mispics
-            tt_precalc = self.travel_times["vector"]
+            tt_precalc = self.travel_times.tt_vector
             misfit = []
 
             # get the new location
@@ -669,6 +683,5 @@ class Event:
     def run(self):
         # run loop indefinitely
         while True:
-
             self.find_and_locate()
-            time.sleep(0.5)
+            time.sleep(self.params['sleep_time'])

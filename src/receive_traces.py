@@ -2,6 +2,7 @@
 import json
 from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
+import datetime
 
 
 class DataReceiver:
@@ -58,7 +59,7 @@ class DataReceiver:
         The production topic is 'iot-2/type/OpenEEW/id/+/evt/status/fmt/json'"""
 
         topic = "iot-2/type/OpenEEW/id/+/evt/status/fmt/json"
-        print(f"✅ Connected with result code {resultcode}")
+        print(f"✅ Subscribed to sensor data with result code {resultcode}")
         client.subscribe(topic)
 
     def on_message(self, client, userdata, message):
@@ -68,6 +69,11 @@ class DataReceiver:
             decoded_message = str(message.payload.decode("utf-8", "ignore"))
             data = json.loads(decoded_message)
 
-            self.df_holder.update(data)
+            # get timestamp for the received trace
+            dt = datetime.datetime.now(datetime.timezone.utc)  
+            utc_time = dt.replace(tzinfo=datetime.timezone.utc)
+            cloud_t = utc_time.timestamp()
+
+            self.df_holder.update(data, cloud_t)
         except BaseException as exception:
             print(exception)

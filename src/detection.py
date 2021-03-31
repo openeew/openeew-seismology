@@ -47,6 +47,9 @@ class Detect:
         # do station magnitude
         self.station_magnitude()
 
+        # drop old data from the buffer
+        self.raw_data.drop(self.params)
+
     def detect_stalta(self):
 
         STA_len = self.params["STA_len"]
@@ -284,11 +287,12 @@ class Detect:
         # run loop indefinitely
         while True:
             self.detect()
-            time.sleep(0.5)
+            time.sleep(self.params['sleep_time'])
+
+
 
 
 # # FUNCTIONS FOR ML IMPLEMENTATION
-
 
 # def detect_ml(model, data_array, db, time_now, params):
 

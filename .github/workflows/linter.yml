@@ -8,7 +8,7 @@ on:
   # Execute on every pull request to the master branch
   pull_request_target:
     branches:
-      - master
+      - main
 
 jobs:
   linter:

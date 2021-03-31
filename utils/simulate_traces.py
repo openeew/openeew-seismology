@@ -23,7 +23,7 @@ def run():
         "--directory",
         help="A directory containing *.JSONL files",
         nargs="?",
-        default="../data/2017_12_16",
+        default="../data/2017_12_15",
     )
 
     parser.add_argument("--clientid", help="MQTT clientID", default="simulator_traces")
@@ -77,8 +77,8 @@ def publish_jsonl(data_path, client, topic):
     timediff = timediff.iloc[1:].append(pd.Series([0])) / 1
 
     # loop over all json elements in the json array and publish to MQTT
-    for i in range(len(data)):
-        json_str = data.iloc[i].to_json()
+    for i in range(2000,len(data)):
+        json_str = data[['device_id', 'x', 'y', 'z', 'sr']].iloc[i].to_json()
         client.publish(topic, json.dumps(json_str))
         time.sleep(timediff.iloc[i])
 

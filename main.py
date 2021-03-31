@@ -7,7 +7,7 @@ import time
 import pickle
 from threading import Thread
 
-from params import main_params, tt_params, det_params, ev_params
+from params import tt_params, det_params, ev_params
 from src import (
     data_holders,
     receive_traces,
@@ -27,13 +27,14 @@ __status__ = ""
 
 
 def main():
-
-    # Pre-load/calculate travel-time tables
-    travel_times = travel_time.calculate_trave_times(params=tt_params)
+    """Does everything"""
 
     # Pre-load keras detection model
     # detection_model_name = det_params["detection_model_name"]
     # detection_model = detection.load_model(detection_model_name)
+
+    # Set travel times class
+    travel_times = data_holders.TravelTimes(params=tt_params)
 
     # Create a RawData DataFrame.
     raw_data = data_holders.RawData()
@@ -48,7 +49,7 @@ def main():
     events = data_holders.Events()
 
     # We create and start our devices update worker
-    stream = receive_devices.DeviceReceiver(devices)
+    stream = receive_devices.DeviceReceiver(travel_times, devices)
     receive_devices_process = Thread(target=stream.run)
     receive_devices_process.start()
 
@@ -83,4 +84,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()

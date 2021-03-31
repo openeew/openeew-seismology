@@ -7,10 +7,11 @@ from paho.mqtt.client import Client as MqttClient
 class DeviceReceiver:
     """This class subscribes to the MQTT and receivces raw data"""
 
-    def __init__(self, df_holder) -> None:
+    def __init__(self, travel_times, df_receivers) -> None:
         """Initializes the DataReceiver object"""
         super().__init__()
-        self.df_holder = df_holder
+        self.travel_times = travel_times
+        self.df_receivers = df_receivers
 
     def run(self):
         """Main method that parses command options and executes the rest of the script"""
@@ -59,7 +60,7 @@ class DeviceReceiver:
         the production topic is 'iot-2/type/OpenEEW/id/+/mon'"""
 
         topic = "iot-2/type/OpenEEW/id/+/mon"
-        print(f"✅ Connected with result code {resultcode}")
+        print(f"✅ Subscribed to devices with result code {resultcode}")
         client.subscribe(topic)
 
     def on_message(self, client, userdata, message):
@@ -69,6 +70,7 @@ class DeviceReceiver:
             decoded_message = str(message.payload.decode("utf-8", "ignore"))
             data = json.loads(decoded_message)
 
-            self.df_holder.update(data)
+            self.travel_times.update(data)
+            self.df_receivers.update(data)
         except BaseException as exception:
             print(exception)
