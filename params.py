@@ -2,34 +2,16 @@
 This file sets parameters used in real-time OpenEEW algorithm
 """
 
-# DATABASE
-db_name = "openeew"  # database name
-host = "localhost"  # database host
-user = "root"  # database user
-passwd = ""  # database password
-
-# PATH TO DATA AND DEVICE
-device_path = (
-    "data/devices/devices_locations.csv"  # path to folder with device locations
-)
-data_path = "data/2020_7_2"  # path to folder with .jsonl data
-
-# BUFFER AND SLEEP
-sleep_time = 0  # sleep_time = 1 s to simulate real time observations
-samp_rate = 31.25  # sample rate
-buffer_len = 14  # buffer_len*samp_rate must be longer than array_samp
-db_init = False  # set to True if you want to initiate a new db
-populate_raw = True  # set to True if you want to populate raw_data with raw data
-
 # TRAVEL TIME GRID AND CALCULATION
 lat_min = 13  # minimum latitude
 lat_max = 23  # maximum latitude
 lon_min = -106  # minimum longitude
 lon_max = -90  # maximum longitude
-step = 0.01  # step in degrees
+step = 1  # step in degrees
 eq_depth = 20  # earthquake depth
-calculate_open = "open"  # 'calculate' new travel times or 'open' existing
 vel_model = "iasp91"  # velocity model from obspy list
+tt_path = "./obj/travel_times"  # relative path to the travel_time folder
+buffer_len = 15  # buffer_len*samp_rate must be longer than array_samp
 
 # DETECTION
 det_type = "stalta"  # 'stalta' or 'ml' for machine learning
@@ -40,6 +22,9 @@ array_samp = 352  # must be >= STA_len+LTA_len for 'stalta', or 300 for 'ml'
 STALTA_thresh = 3  # threshold for STA/LTA
 no_det_win = 60  # window without new detections after a detection
 vert_chan = "x"  # which channel is oriented in the vertical direction
+sleep_time = (
+    1  # the detection algorithm is going to pause for this time after each loop
+)
 
 # LOCATION AND MAGNITUDE REGRESSION PARAMS
 tsl_max = 20  # save/discard event after this many seconds without a new detection
@@ -54,6 +39,7 @@ prior_type = (
 )
 mc = 3  # magnitude of completeness for GR distribution
 b_value = 1  # b-value for GR distribution
+sleep_time = 1  # the event algorithm is going to pause for this time after each loop
 
 mag1 = (
     1.67,
@@ -71,26 +57,15 @@ mag8 = (1.39, 5.21, 1, 0.52)
 mag9 = (1.32, 5.19, 1, 0.47)
 
 
-db = {"db_name": db_name, "host": host, "user": user, "passwd": passwd}
-
-main_params = {
-    "device_path": device_path,
-    "data_path": data_path,
-    "sleep_time": sleep_time,
-    "buffer_len": buffer_len,
-    "db_init": db_init,
-    "populate_raw": populate_raw,
-}
-
 tt_params = {
     "lat_min": lat_min,
     "lat_max": lat_max,
     "lon_min": lon_min,
     "lon_max": lon_max,
     "step": step,
-    "calculate_open": calculate_open,
     "vel_model": vel_model,
     "eq_depth": eq_depth,
+    "tt_path": tt_path,
 }
 
 det_params = {
@@ -99,13 +74,14 @@ det_params = {
     "LTA_len": LTA_len,
     "STALTA_thresh": STALTA_thresh,
     "no_det_win": no_det_win,
-    "samp_rate": samp_rate,
     "vert_chan": vert_chan,
     "array_samp": array_samp,
     "detection_model_name": detection_model_name,
+    "buffer_len": buffer_len,
+    "sleep_time": sleep_time,
 }
 
-mag_params = {
+ev_params = {
     "mag1": mag1,
     "mag2": mag2,
     "mag3": mag3,
@@ -126,4 +102,5 @@ mag_params = {
     "b_value": b_value,
     "assoc_win": assoc_win,
     "eq_depth": eq_depth,
+    "sleep_time": sleep_time,
 }

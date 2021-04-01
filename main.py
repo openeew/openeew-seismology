@@ -5,9 +5,17 @@ This is the main file that runs the OpenEEW code package
 # import modules
 import time
 import pickle
-from utils import raw_data, devices
-from src import db_handle, detection, magnitude, travel_time, event
-from params import db, main_params, tt_params, det_params, mag_params
+from threading import Thread
+
+from params import tt_params, det_params, ev_params
+from src import (
+    data_holders,
+    receive_traces,
+    receive_devices,
+    detection,
+    event,
+    travel_time,
+)
 
 __author__ = "Vaclav Kuna"
 __copyright__ = ""
@@ -18,75 +26,63 @@ __email__ = "kuna.vaclav@gmail.com"
 __status__ = ""
 
 
-# ---------------------------------------------
-# INITIATE THE DATABASE AND POPULATE THE TABLES
-# ---------------------------------------------
+def main():
+    """Does everything"""
 
-# create empty database
-if main_params["db_init"]:
-    db_handle.db_init(db)
+    # Pre-load keras detection model
+    # detection_model_name = det_params["detection_model_name"]
+    # detection_model = detection.load_model(detection_model_name)
 
-# create empty detection, device, assoc and event tables
-db_handle.db_tables_init(db)
+    # Set travel times class
+    travel_times = data_holders.TravelTimes(params=tt_params)
 
-# populate the device table
-devices.populate_devices(main_params["device_path"], db)
+    # Create a RawData DataFrame.
+    raw_data = data_holders.RawData()
 
-# open/calculate travel times
-travel_times = travel_time.calculate_trave_times(db, params=tt_params)
+    # Create a Devices DataFrame.
+    devices = data_holders.Devices()
 
-# create and populate raw_data table in the database
-if main_params["populate_raw"]:
-    raw_data.make_raw_table(main_params["data_path"], db)
+    # Create a Detections DataFrame.
+    detections = data_holders.Detections()
 
-# load keras detection model
-detection_model_name = det_params["detection_model_name"]
-detection_model = detection.load_model(detection_model_name)
+    # Create a Events DataFrame.
+    events = data_holders.Events()
 
-# initiate the first event
-ev = None
+    # We create and start our devices update worker
+    stream = receive_devices.DeviceReceiver(travel_times, devices)
+    receive_devices_process = Thread(target=stream.run)
+    receive_devices_process.start()
 
-# ---------------------------------------------
-# MAIN CODE
-# ---------------------------------------------
+    # We create and start our raw_data update worker
+    stream = receive_traces.DataReceiver(raw_data)
+    receive_data_process = Thread(target=stream.run)
+    receive_data_process.start()
 
-# get the start time
-time_now = raw_data.time_start(db) + 1
-
-# create empty data dictionary
-data_buffer = []
-
-# MAIN LOOP
-
-while True:
-
-    # get data from the last second
-    data_sec = raw_data.fetch_data(db, time_now)
-
-    # add the data to the data buffer
-    data_buffer.extend(data_sec)
-
-    # DETECTION
-    detection.detect(
-        model=detection_model,
-        data_buffer=data_buffer,
-        db=db,
-        time_now=time_now,
-        params=det_params,  # alternatively choose 'ml'
+    # We create and start detection worker
+    compute = detection.Detect(
+        raw_data=raw_data, detections=detections, params=det_params
     )
+    detect_process = Thread(target=compute.run)
+    detect_process.start()
 
-    # LOCATION
-    ev = event.find_and_locate(
-        ev=ev, db=db, time_now=time_now, travel_times=travel_times, params=mag_params
+    # We create and start event worker
+    compute = event.Event(
+        devices=devices,
+        detections=detections,
+        events=events,
+        travel_times=travel_times,
+        params=ev_params,
     )
+    event_process = Thread(target=compute.run)
+    event_process.start()
 
-    # Remove old data from the buffer
-    # (all data chunks with the firs element older that time_now - buffer time)
-    buffer_len = main_params["buffer_len"]
-    data_buffer = [
-        line for line in data_buffer if line["time"][0] > (time_now - buffer_len)
-    ]
+    # We join our Threads, i.e. we wait for them to finish before continuing
+    receive_devices_process.join()
+    receive_data_process.join()
+    detect_process.join()
+    event_process.join()
 
-    # UPDATE TIME AND SLEEP
-    time_now += 1
-    time.sleep(main_params["sleep_time"])
+
+if __name__ == "__main__":
+
+    main()

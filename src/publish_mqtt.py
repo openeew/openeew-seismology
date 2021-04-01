@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
 
 
-def run():
+def run(topic, json_data):
     """Main method that parses command options and executes the rest of the script"""
     parser = ArgumentParser()
     parser.add_argument(
@@ -33,27 +33,19 @@ def run():
         arguments.host, arguments.port, arguments.username, arguments.password
     )
 
-    json_data = load_json(arguments.file)
+    topic = "iot-2/type/OpenEEW/id/000000000000/" + topic
 
-    publish_json(client, "iot-2/type/OpenEEW/id/000000000000/mon", json_data)
+    publish_json(client, topic, json_data)
 
     client.disconnect()
-
-
-def load_json(data_path):
-    """Reading JSON from a .JSON file"""
-    with open(data_path) as file:
-        data = json.load(file)
-    return data
 
 
 def publish_json(client, topic, data):
     """Publish each JSON to the given topic"""
 
-    for device in data:
-        json_obj = json.dumps(device)
-        print(f"Sending device {json_obj}")
-        client.publish(topic, json.dumps(json_obj))
+    json_obj = json.dumps(data)
+    # print(f"Sending device {json_obj}")
+    client.publish(topic, json.dumps(json_obj))
 
 
 def create_client(host, port, username, password):
@@ -65,6 +57,3 @@ def create_client(host, port, username, password):
 
     client.connect(host=host, port=port)
     return client
-
-
-run()
