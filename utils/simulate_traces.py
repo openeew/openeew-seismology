@@ -5,6 +5,10 @@ import glob
 from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
 
+import pandas as pd
+import time
+from datetime import datetime
+
 
 def run():
     """Main method that parses command options and executes the rest of the script"""
@@ -19,7 +23,7 @@ def run():
         "--directory",
         help="A directory containing *.JSONL files",
         nargs="?",
-        default="../data/2020_7_2",
+        default="../data/2017_12_15",
     )
 
     parser.add_argument("--clientid", help="MQTT clientID", default="simulator_traces")
@@ -55,6 +59,9 @@ def create_client(host, port, username, password):
 def publish_jsonl(data_path, client, topic):
     """Publish each line of a jsonl given a directory"""
 
+    # dataframe that will keep all data
+    data = pd.DataFrame()
+
     # loop over all *.jsonl files in a folder
     for filepath in glob.iglob(data_path + "/*/*.jsonl"):
 
@@ -62,10 +69,24 @@ def publish_jsonl(data_path, client, topic):
 
         with open(filepath, "r") as json_file:
             json_array = list(json_file)
+            data = data.append([json.loads(line) for line in json_array])
 
-        # loop over all json elements in the json array and publish to MQTT
-        for json_str in json_array:
-            client.publish(topic, json.dumps(json_str))
+    # create a vector of 'deplays' that will make the data chunks come at the right time
+    data.sort_values(by=["cloud_t"], inplace=True)
+    timediff = data["cloud_t"].diff()
+    timediff = timediff.iloc[1:].append(pd.Series([0])) / 1
+
+    # loop over all json elements in the json array and publish to MQTT
+    for i in range(len(data)):
+        json_str = data[["device_id", "x", "y", "z", "sr"]].iloc[i].to_json()
+        client.publish(topic, json.dumps(json_str))
+        time.sleep(timediff.iloc[i])
+
+        print(
+            datetime.utcfromtimestamp(data["cloud_t"].iloc[i]).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+        )
 
 
 run()
