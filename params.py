@@ -7,7 +7,7 @@ lat_min = 13  # minimum latitude
 lat_max = 23  # maximum latitude
 lon_min = -106  # minimum longitude
 lon_max = -90  # maximum longitude
-step = 1  # step in degrees
+step = .01  # step in degrees
 eq_depth = 20  # earthquake depth
 vel_model = "iasp91"  # velocity model from obspy list
 tt_path = "./obj/travel_times"  # relative path to the travel_time folder
@@ -41,12 +41,8 @@ mc = 3  # magnitude of completeness for GR distribution
 b_value = 1  # b-value for GR distribution
 sleep_time = 1  # the event algorithm is going to pause for this time after each loop
 
-mag1 = (
-    1.67,
-    5.68,
-    1,
-    0.85,
-)  # a, b, c, std params in M = a*pd + b, c is distance normalization, std is pd scatter
+# a, b, c, std params in M = a*pd + b, c is distance normalization, std is pd scatter
+mag1 = (1.67, 5.68, 1, 0.85)
 mag2 = (1.56, 5.47, 1, 0.74)
 mag3 = (1.44, 5.35, 1, 0.66)
 mag4 = (1.41, 5.32, 1, 0.59)
@@ -57,7 +53,7 @@ mag8 = (1.39, 5.21, 1, 0.52)
 mag9 = (1.32, 5.19, 1, 0.47)
 
 
-tt_params = {
+params = {
     "lat_min": lat_min,
     "lat_max": lat_max,
     "lon_min": lon_min,
@@ -66,9 +62,6 @@ tt_params = {
     "vel_model": vel_model,
     "eq_depth": eq_depth,
     "tt_path": tt_path,
-}
-
-det_params = {
     "det_type": det_type,
     "STA_len": STA_len,
     "LTA_len": LTA_len,
@@ -79,9 +72,6 @@ det_params = {
     "detection_model_name": detection_model_name,
     "buffer_len": buffer_len,
     "sleep_time": sleep_time,
-}
-
-ev_params = {
     "mag1": mag1,
     "mag2": mag2,
     "mag3": mag3,

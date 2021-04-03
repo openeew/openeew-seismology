@@ -23,7 +23,7 @@ def run():
         "--directory",
         help="A directory containing *.JSONL files",
         nargs="?",
-        default="../data/2017_12_15",
+        default="../data/2017_12_16",
     )
 
     parser.add_argument("--clientid", help="MQTT clientID", default="simulator_traces")

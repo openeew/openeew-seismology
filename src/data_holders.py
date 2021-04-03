@@ -131,41 +131,22 @@ class Events:
 class TravelTimes:
     """This dataclass holds a reference to the TravelTimes in memory."""
 
-    print("✅ Created travel times instance.")
+    print("✅ Creating travel times instance.")
 
     def __init__(self, params):
 
         # save travel time params
         self.params = params
 
+        # open or calculate new travel time tables
+        tt = travel_time.get_travel_time(params)
+
         # load or calculate new travel time vector
-        self.tt_vector = travel_time.get_tt_vector(params)
+        self.tt_vector = tt['tt_vector']
 
         # create latitude and longitude grid
-        self.grid_lat, self.grid_lon = travel_time.get_grid(params)
+        self.grid_lat = tt['grid_lat']
+        self.grid_lon = tt['grid_lon']
 
         # create empty dictionary for travel times
-        self.travel_times = {}
-
-    def update(self, data):
-
-        data = json.loads(data)
-
-        # extract device_id, latitude, longitude
-        device_id = data["device_id"]
-        device_lat = data["latitude"]
-        device_lon = data["longitude"]
-
-        print("🔼 Received new device with ID " + device_id + ".")
-
-        device_tt = travel_time.get_travel_time(
-            self.tt_vector,
-            self.grid_lat,
-            self.grid_lon,
-            device_id,
-            device_lat,
-            device_lon,
-            self.params,
-        )
-
-        self.travel_times[device_id] = device_tt
+        self.tt_grid = tt['tt_grid']

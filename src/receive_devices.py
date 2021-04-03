@@ -7,10 +7,9 @@ from paho.mqtt.client import Client as MqttClient
 class DeviceReceiver:
     """This class subscribes to the MQTT and receivces raw data"""
 
-    def __init__(self, travel_times, df_receivers) -> None:
+    def __init__(self, df_receivers) -> None:
         """Initializes the DataReceiver object"""
         super().__init__()
-        self.travel_times = travel_times
         self.df_receivers = df_receivers
 
     def run(self):
@@ -70,7 +69,6 @@ class DeviceReceiver:
             decoded_message = str(message.payload.decode("utf-8", "ignore"))
             data = json.loads(decoded_message)
 
-            self.travel_times.update(data)
             self.df_receivers.update(data)
         except BaseException as exception:
             print(exception)
