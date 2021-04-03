@@ -59,11 +59,7 @@ def get_travel_time_vector(params):
 
         # print progress percent
         progress = str(int((i / len(dist)) * 100))
-        sys.stdout.write(
-            "\r  Calculating new velocity vector: "
-            + progress
-            + "%"
-        )
+        sys.stdout.write("\r  Calculating new velocity vector: " + progress + "%")
 
     # make a dictionary out of it
     tt_precalc = {"dist": dist, "travel_time": tt}
@@ -90,12 +86,12 @@ def get_lat_lon_grid(params):
 def get_travel_time_grid(tt_precalc, params):
 
     # get width of the grid
-    lat_width = params['lat_max']-params['lat_min']
-    lon_width = params['lon_max']-params['lon_min']
+    lat_width = params["lat_max"] - params["lat_min"]
+    lon_width = params["lon_max"] - params["lon_min"]
 
     # get grid
-    lat = np.arange(start=-lat_width, stop=lat_width, step=params['step'])
-    lon = np.arange(start=-lon_width, stop=lon_width, step=params['step'])
+    lat = np.arange(start=-lat_width, stop=lat_width, step=params["step"])
+    lon = np.arange(start=-lon_width, stop=lon_width, step=params["step"])
 
     xv, yv = np.meshgrid(lat, lon, sparse=False, indexing="ij")
 
@@ -111,9 +107,7 @@ def get_travel_time_grid(tt_precalc, params):
             point_lon = yv[i, j]
 
             # using mine
-            distance_in_degree = globe_distance(
-                point_lat, point_lon, 0, 0
-            )
+            distance_in_degree = globe_distance(point_lat, point_lon, 0, 0)
 
             # find the closest time from the tt_precalc and place it in the grid
             tt[i, j] = tt_precalc["travel_time"][
@@ -122,11 +116,7 @@ def get_travel_time_grid(tt_precalc, params):
 
         # print progress percent
         progress = str(int((i / nx) * 100))
-        sys.stdout.write(
-            "\r     Calculating new velocity grid: "
-            + progress
-            + "%"
-        )
+        sys.stdout.write("\r     Calculating new velocity grid: " + progress + "%")
 
     return tt
 
@@ -158,7 +148,6 @@ def globe_distance(lat1, lon1, lat2, lon2):
 
 def get_travel_time(params):
 
-
     tt_path = params["tt_path"]
 
     # try to load pre-computed travel time vector from file
@@ -167,29 +156,33 @@ def get_travel_time(params):
         with open(tt_path + "/travel_times.pkl", "rb") as f:
             travel_times = pickle.load(f)
 
-        if all([travel_times['params']['lat_min'] == params['lat_min'],
-            travel_times['params']['lat_max'] == params['lat_max'],
-            travel_times['params']['lon_min'] == params['lon_min'],
-            travel_times['params']['lon_max'] == params['lon_max'],
-            travel_times['params']['eq_depth'] == params['eq_depth'],
-            travel_times['params']['step'] == params['step'],
-            travel_times['params']['vel_model'] == params['vel_model']]):
+        if all(
+            [
+                travel_times["params"]["lat_min"] == params["lat_min"],
+                travel_times["params"]["lat_max"] == params["lat_max"],
+                travel_times["params"]["lon_min"] == params["lon_min"],
+                travel_times["params"]["lon_max"] == params["lon_max"],
+                travel_times["params"]["eq_depth"] == params["eq_depth"],
+                travel_times["params"]["step"] == params["step"],
+                travel_times["params"]["vel_model"] == params["vel_model"],
+            ]
+        ):
 
             travel_time_fit = True
-            print('  Travel time table successfully loaded.')
-        
+            print("  Travel time table successfully loaded.")
+
         else:
             travel_time_fit = False
-            print('  Saved travel time table does not match the parameters given in the parameter file.')
-
+            print(
+                "  Saved travel time table does not match the parameters given in the parameter file."
+            )
 
     except:
-        
+
         travel_time_fit = False
-    
 
     if travel_time_fit == False:
-        
+
         # calculate travel_time vector
         tt_vector = get_travel_time_vector(params)
 
@@ -200,16 +193,24 @@ def get_travel_time(params):
         tt_grid = get_travel_time_grid(tt_vector, params)
 
         # params to save
-        params2save = {'lat_min': params['lat_min'],
-        'lat_max': params['lat_max'],
-        'lon_min': params['lon_min'],
-        'lon_max': params['lon_max'],
-        'step': params['step'], 
-        'eq_depth': params['eq_depth'],
-        'vel_model': params['vel_model']}
+        params2save = {
+            "lat_min": params["lat_min"],
+            "lat_max": params["lat_max"],
+            "lon_min": params["lon_min"],
+            "lon_max": params["lon_max"],
+            "step": params["step"],
+            "eq_depth": params["eq_depth"],
+            "vel_model": params["vel_model"],
+        }
 
-        # Create and save travel time dictionary       
-        travel_times = {'tt_vector': tt_vector, 'grid_lat': grid_lat, 'grid_lon': grid_lon, 'tt_grid': tt_grid, 'params': params2save}
+        # Create and save travel time dictionary
+        travel_times = {
+            "tt_vector": tt_vector,
+            "grid_lat": grid_lat,
+            "grid_lon": grid_lon,
+            "tt_grid": tt_grid,
+            "params": params2save,
+        }
 
         # save to
         with open(tt_path + "/travel_times.pkl", "wb") as f:

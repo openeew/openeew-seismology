@@ -463,24 +463,34 @@ class Event:
     def get_device_tt_grid(self, device_id, params):
 
         # get device latitude and longitude
-        dev_lat = self.devices.data[self.devices.data["device_id"] == device_id]["latitude"]
-        dev_lon = self.devices.data[self.devices.data["device_id"] == device_id]["longitude"]
+        dev_lat = self.devices.data[self.devices.data["device_id"] == device_id][
+            "latitude"
+        ]
+        dev_lon = self.devices.data[self.devices.data["device_id"] == device_id][
+            "longitude"
+        ]
 
         # get grid limits
-        lat_min = params['lat_min']
-        lat_max = params['lat_max']
-        lon_min = params['lon_min']
-        lon_max = params['lon_max']
-        step = params['step']
+        lat_min = params["lat_min"]
+        lat_max = params["lat_max"]
+        lon_min = params["lon_min"]
+        lon_max = params["lon_max"]
+        step = params["step"]
 
         # get first and last samples
-        first_sample_lat = int(np.round(((lat_max-lat_min) - (dev_lat-lat_min)) * (1/step)))
+        first_sample_lat = int(
+            np.round(((lat_max - lat_min) - (dev_lat - lat_min)) * (1 / step))
+        )
         last_sample_lat = first_sample_lat + self.travel_times.grid_lat.shape[0]
-        first_sample_lon = int(np.round(((lon_max-lon_min) - (dev_lon-lon_min)) * (1/step)))
+        first_sample_lon = int(
+            np.round(((lon_max - lon_min) - (dev_lon - lon_min)) * (1 / step))
+        )
         last_sample_lon = first_sample_lon + self.travel_times.grid_lat.shape[1]
 
         # get the device grid
-        dev_grid = self.travel_times.tt_grid[first_sample_lat:last_sample_lat, first_sample_lon:last_sample_lon]
+        dev_grid = self.travel_times.tt_grid[
+            first_sample_lat:last_sample_lat, first_sample_lon:last_sample_lon
+        ]
 
         return dev_grid
 
@@ -628,15 +638,7 @@ class Event:
                 grid_device_new = self.get_device_tt_grid(new_device, self.params)
 
                 tt_prob = np.exp(
-                    -(
-                        (
-                            grid_device_old
-                            - grid_device_new
-                            - det_time
-                            + new_time
-                        )
-                        ** 2
-                    )
+                    -((grid_device_old - grid_device_new - det_time + new_time) ** 2)
                     / (2 * sigma ** 2)
                 )
 

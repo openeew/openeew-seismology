@@ -59,9 +59,7 @@ def main():
     receive_data_process.start()
 
     # We create and start detection worker
-    compute = detection.Detect(
-        raw_data=raw_data, detections=detections, params=params
-    )
+    compute = detection.Detect(raw_data=raw_data, detections=detections, params=params)
     detect_process = Thread(target=compute.run)
     detect_process.start()
 

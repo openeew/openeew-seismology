@@ -142,11 +142,11 @@ class TravelTimes:
         tt = travel_time.get_travel_time(params)
 
         # load or calculate new travel time vector
-        self.tt_vector = tt['tt_vector']
+        self.tt_vector = tt["tt_vector"]
 
         # create latitude and longitude grid
-        self.grid_lat = tt['grid_lat']
-        self.grid_lon = tt['grid_lon']
+        self.grid_lat = tt["grid_lat"]
+        self.grid_lon = tt["grid_lon"]
 
         # create empty dictionary for travel times
-        self.tt_grid = tt['tt_grid']
+        self.tt_grid = tt["tt_grid"]
