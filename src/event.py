@@ -453,12 +453,46 @@ class Event:
         # get origin time based on the location and the first detection
         first_sta = first_det["device_id"]
         first_time = first_det["cloud_t"]
-        sta_travel_time = self.travel_times.travel_times[first_sta][
-            loc_prob == loc_prob.max()
-        ]
+        device_grid = self.get_device_tt_grid(first_sta, self.params)
+
+        sta_travel_time = device_grid[loc_prob == loc_prob.max()]
         best_orig_time = first_time - sta_travel_time[0]
 
         return best_lat, best_lon, best_depth, best_orig_time
+
+    def get_device_tt_grid(self, device_id, params):
+
+        # get device latitude and longitude
+        dev_lat = self.devices.data[self.devices.data["device_id"] == device_id][
+            "latitude"
+        ]
+        dev_lon = self.devices.data[self.devices.data["device_id"] == device_id][
+            "longitude"
+        ]
+
+        # get grid limits
+        lat_min = params["lat_min"]
+        lat_max = params["lat_max"]
+        lon_min = params["lon_min"]
+        lon_max = params["lon_max"]
+        step = params["step"]
+
+        # get first and last samples
+        first_sample_lat = int(
+            np.round(((lat_max - lat_min) - (dev_lat - lat_min)) * (1 / step))
+        )
+        last_sample_lat = first_sample_lat + self.travel_times.grid_lat.shape[0]
+        first_sample_lon = int(
+            np.round(((lon_max - lon_min) - (dev_lon - lon_min)) * (1 / step))
+        )
+        last_sample_lon = first_sample_lon + self.travel_times.grid_lat.shape[1]
+
+        # get the device grid
+        dev_grid = self.travel_times.tt_grid[
+            first_sample_lat:last_sample_lat, first_sample_lon:last_sample_lon
+        ]
+
+        return dev_grid
 
     def get_magnitude(self, event_id, best_lat, best_lon):
         """
@@ -600,16 +634,11 @@ class Event:
                 sigma = self.get_sigma(event_id, new_device, det_device)
 
                 # calculate probability curve
+                grid_device_old = self.get_device_tt_grid(det_device, self.params)
+                grid_device_new = self.get_device_tt_grid(new_device, self.params)
+
                 tt_prob = np.exp(
-                    -(
-                        (
-                            self.travel_times.travel_times[det_device]
-                            - self.travel_times.travel_times[new_device]
-                            - det_time
-                            + new_time
-                        )
-                        ** 2
-                    )
+                    -((grid_device_old - grid_device_new - det_time + new_time) ** 2)
                     / (2 * sigma ** 2)
                 )
 

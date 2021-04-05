@@ -21,72 +21,53 @@ __email__ = "kuna.vaclav@gmail.com"
 __status__ = ""
 
 
-def get_tt_vector(params):
+def get_travel_time_vector(params):
     """"""
 
-    tt_path = params["tt_path"]
+    # set params from params
+    lat_min = params["lat_min"]
+    lat_max = params["lat_max"]
+    lon_min = params["lon_min"]
+    lon_max = params["lon_max"]
+    step = params["step"]
+    vel_model = params["vel_model"]
+    eq_depth = params["eq_depth"]
 
-    # try to load pre-computed travel time vector from file
-    try:
+    # define maxiumum distance
+    max_dist = ((lat_max - lat_min) ** 2 + (lon_max - lon_min) ** 2) ** (1 / 2)
 
-        with open(tt_path + "/tt_vector.pkl", "rb") as f:
-            tt_precalc = pickle.load(f)
+    # define velocity model
+    model = TauPyModel(model=vel_model)
 
-    # or calculate a new one
-    except:
+    # has to be <= 1/10 of grid step
+    step = step / 10
 
-        # set params from params
-        lat_min = params["lat_min"]
-        lat_max = params["lat_max"]
-        lon_min = params["lon_min"]
-        lon_max = params["lon_max"]
-        step = params["step"]
-        vel_model = params["vel_model"]
-        eq_depth = params["eq_depth"]
+    # define distances and empty array for results
+    dist = np.arange(start=0, stop=max_dist, step=step)
+    tt = np.zeros_like(dist)
 
-        # define maxiumum distance
-        max_dist = ((lat_max - lat_min) ** 2 + (lon_max - lon_min) ** 2) ** (1 / 2)
+    # loop over all distances
+    for i, distance_in_degree in enumerate(dist):
 
-        # define velocity model
-        model = TauPyModel(model=vel_model)
+        # do the calculation
+        time_out = model.get_travel_times(
+            source_depth_in_km=eq_depth,
+            distance_in_degree=distance_in_degree,
+            phase_list=["p", "P"],
+        )
+        tt[i] = time_out[0].time
 
-        # has to be <= 1/10 of grid step
-        step = step / 10
+        # print progress percent
+        progress = str(int((i / len(dist)) * 100))
+        sys.stdout.write("\r  Calculating new velocity vector: " + progress + "%")
 
-        # define distances and empty array for results
-        dist = np.arange(start=0, stop=max_dist, step=step)
-        tt = np.zeros_like(dist)
-
-        # loop over all distances
-        for i, distance_in_degree in enumerate(dist):
-
-            # do the calculation
-            time_out = model.get_travel_times(
-                source_depth_in_km=eq_depth,
-                distance_in_degree=distance_in_degree,
-                phase_list=["p", "P"],
-            )
-            tt[i] = time_out[0].time
-
-            # print progress percent
-            progress = str(int((i / len(dist)) * 100))
-            sys.stdout.write(
-                "\r  No precalculated velocity model found. Calculating a new one: "
-                + progress
-                + "%"
-            )
-
-        # make a dictionary out of it
-        tt_precalc = {"dist": dist, "travel_time": tt}
-
-        # save to
-        with open(tt_path + "/tt_vector.pkl", "wb") as f:
-            pickle.dump(tt_precalc, f, pickle.HIGHEST_PROTOCOL)
+    # make a dictionary out of it
+    tt_precalc = {"dist": dist, "travel_time": tt}
 
     return tt_precalc
 
 
-def get_grid(params):
+def get_lat_lon_grid(params):
 
     lat_min = params["lat_min"]
     lat_max = params["lat_max"]
@@ -102,55 +83,40 @@ def get_grid(params):
     return (xv, yv)
 
 
-def get_travel_time(
-    tt_precalc, grid_lat, grid_lon, device_id, dev_lat, dev_lon, params
-):
+def get_travel_time_grid(tt_precalc, params):
 
-    tt_path = params["tt_path"]
+    # get width of the grid
+    lat_width = params["lat_max"] - params["lat_min"]
+    lon_width = params["lon_max"] - params["lon_min"]
 
-    # try to load pre-computed travel time vector from file
-    try:
+    # get grid
+    lat = np.arange(start=-lat_width, stop=lat_width, step=params["step"])
+    lon = np.arange(start=-lon_width, stop=lon_width, step=params["step"])
 
-        with open(tt_path + "/tt_" + device_id + ".pkl", "rb") as f:
-            tt = pickle.load(f)
+    xv, yv = np.meshgrid(lat, lon, sparse=False, indexing="ij")
 
-    # or calculate a new one
-    except:
+    nx = xv.shape[0]
+    ny = xv.shape[1]
 
-        xv = grid_lat
-        yv = grid_lon
+    tt = np.zeros_like(xv)
 
-        nx = xv.shape[0]
-        ny = xv.shape[1]
+    for i in range(nx):
+        for j in range(ny):
 
-        tt = np.zeros_like(xv)
+            point_lat = xv[i, j]
+            point_lon = yv[i, j]
 
-        for i in range(nx):
-            for j in range(ny):
+            # using mine
+            distance_in_degree = globe_distance(point_lat, point_lon, 0, 0)
 
-                point_lat = xv[i, j]
-                point_lon = yv[i, j]
+            # find the closest time from the tt_precalc and place it in the grid
+            tt[i, j] = tt_precalc["travel_time"][
+                np.argmin(np.abs(tt_precalc["dist"] - distance_in_degree))
+            ]
 
-                # using mine
-                distance_in_degree = globe_distance(
-                    point_lat, point_lon, dev_lat, dev_lon
-                )
-
-                # find the closest time from the tt_precalc and place it in the grid
-                tt[i, j] = tt_precalc["travel_time"][
-                    np.argmin(np.abs(tt_precalc["dist"] - distance_in_degree))
-                ]
-
-            with open(tt_path + "/tt_" + device_id + ".pkl", "wb") as f:
-                pickle.dump(tt, f, pickle.HIGHEST_PROTOCOL)
-
-            # print progress percent
-            progress = str(int((i / nx) * 100))
-            sys.stdout.write(
-                "\r     No precalculated velocity grid for the device found. Calculating a new one: "
-                + progress
-                + "%"
-            )
+        # print progress percent
+        progress = str(int((i / nx) * 100))
+        sys.stdout.write("\r     Calculating new velocity grid: " + progress + "%")
 
     return tt
 
@@ -178,3 +144,77 @@ def globe_distance(lat1, lon1, lat2, lon2):
     distance = R * c / deg2km
 
     return distance
+
+
+def get_travel_time(params):
+
+    tt_path = params["tt_path"]
+
+    # try to load pre-computed travel time vector from file
+    try:
+
+        with open(tt_path + "/travel_times.pkl", "rb") as f:
+            travel_times = pickle.load(f)
+
+        if all(
+            [
+                travel_times["params"]["lat_min"] == params["lat_min"],
+                travel_times["params"]["lat_max"] == params["lat_max"],
+                travel_times["params"]["lon_min"] == params["lon_min"],
+                travel_times["params"]["lon_max"] == params["lon_max"],
+                travel_times["params"]["eq_depth"] == params["eq_depth"],
+                travel_times["params"]["step"] == params["step"],
+                travel_times["params"]["vel_model"] == params["vel_model"],
+            ]
+        ):
+
+            travel_time_fit = True
+            print("  Travel time table successfully loaded.")
+
+        else:
+            travel_time_fit = False
+            print(
+                "  Saved travel time table does not match the parameters given in the parameter file."
+            )
+
+    except:
+
+        travel_time_fit = False
+
+    if travel_time_fit == False:
+
+        # calculate travel_time vector
+        tt_vector = get_travel_time_vector(params)
+
+        # calculate lat lon grid
+        grid_lat, grid_lon = get_lat_lon_grid(params)
+
+        # calculate travel_time grid
+        tt_grid = get_travel_time_grid(tt_vector, params)
+
+        # params to save
+        params2save = {
+            "lat_min": params["lat_min"],
+            "lat_max": params["lat_max"],
+            "lon_min": params["lon_min"],
+            "lon_max": params["lon_max"],
+            "step": params["step"],
+            "eq_depth": params["eq_depth"],
+            "vel_model": params["vel_model"],
+        }
+
+        # Create and save travel time dictionary
+        travel_times = {
+            "tt_vector": tt_vector,
+            "grid_lat": grid_lat,
+            "grid_lon": grid_lon,
+            "tt_grid": tt_grid,
+            "params": params2save,
+        }
+
+        # save to
+        with open(tt_path + "/travel_times.pkl", "wb") as f:
+            pickle.dump(travel_times, f, pickle.HIGHEST_PROTOCOL)
+
+    # Return the dictionary
+    return travel_times
