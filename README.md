@@ -77,6 +77,22 @@ To set up a local MQTT server you can follow the instructions on https://hub.doc
 docker run -it -p 9001:9001 -p 1883:1883 --detach eclipse-mosquitto:latest mosquitto -c /mosquitto-no-auth.conf
 ```
 
+This repository contains a Dockerfile that can be used for local development.
+
+To build a seismology docker image, from the root directory run the following:
+```
+docker build --tag seismology:dev .
+```
+
+To then run this docker image execute the following command:
+```
+docker run \
+  --interactive \
+  --detach \
+  --name seismology \
+  seismology:dev
+```
+
 ### Simulate sensor data
 
 This repository contains sample data that can be used to feed the seismology algorithms. To simulate this data we have included
