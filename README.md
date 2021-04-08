@@ -80,11 +80,13 @@ docker run -it -p 9001:9001 -p 1883:1883 --detach eclipse-mosquitto:latest mosqu
 This repository contains a Dockerfile that can be used for local development.
 
 To build a seismology docker image, from the root directory run the following:
+
 ```
 docker build --tag seismology:dev .
 ```
 
 To then run this docker image execute the following command:
+
 ```
 docker run \
   --interactive \
