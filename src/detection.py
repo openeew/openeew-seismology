@@ -3,11 +3,9 @@ Detection module
 """
 
 # import modules
-import tensorflow as tf
 import numpy as np
 from scipy import signal, integrate
 import itertools
-import mysql.connector
 import time
 import pandas as pd
 

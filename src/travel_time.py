@@ -6,7 +6,6 @@ File description
 import numpy as np
 import pickle
 from obspy.taup.tau import TauPyModel
-import mysql.connector
 import math
 
 import sys
