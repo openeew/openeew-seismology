@@ -3,7 +3,6 @@ Detection module
 """
 
 # import modules
-import tensorflow as tf
 import numpy as np
 from scipy import signal, integrate
 import itertools
