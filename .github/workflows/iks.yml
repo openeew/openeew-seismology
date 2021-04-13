@@ -10,7 +10,8 @@ on:
     types:
       - created
 
-env: DEPLOYMENT_NAME=seismology-staging
+env: 
+  DEPLOYMENT_NAME: seismology-staging
 
 jobs:
   build-push-deploy-job:
