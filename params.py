@@ -27,6 +27,7 @@ sleep_time = 1  # the detection algorithm pauses for this time after each loop
 # DEVICE DATABASE
 sleep_time_devices = 10  # the update device table after this time
 db_name = "openeew-devices-historical"
+device_local_path = "./data/devices/device_locations.json"
 
 # LOCATION AND MAGNITUDE REGRESSION PARAMS
 tsl_max = 20  # save/discard event after this many seconds without a new detection
@@ -76,6 +77,7 @@ params = {
     "sleep_time": sleep_time,
     "sleep_time_devices": sleep_time_devices,
     "db_name": db_name,
+    "device_local_path": device_local_path,
     "mag1": mag1,
     "mag2": mag2,
     "mag3": mag3,

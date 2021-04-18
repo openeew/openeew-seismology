@@ -7,6 +7,7 @@ from cloudant.database import CloudantDatabase
 from dotenv import dotenv_values
 import time
 import pandas as pd
+import json
 
 ibm_cred = dotenv_values()
 
@@ -61,8 +62,46 @@ class GetDevices:
 
         self.devices.data = new_device_table
 
+    def get_devices_local(self):
+
+        device_local_path = self.params["device_local_path"]
+
+        with open(device_local_path, 'r') as devices:
+            
+            devices = json.load(devices)
+            for device in devices:
+                
+                try:
+                    device_id = device["device_id"]
+                    latitude = device["latitude"]
+                    longitude = device["longitude"]
+
+                    dev = pd.DataFrame(
+                        {
+                            "device_id": device_id,
+                            "latitude": latitude,
+                            "longitude": longitude,
+                        },
+                        index=[0],
+                    )
+
+                    new_device_table = new_device_table.append(dev, ignore_index=True)
+
+                except:
+                    pass
+
+
     def run(self):
         # run loop indefinitely
         while True:
-            self.get_devices()
+
+            try:
+                # try to get devices from cloud
+                self.get_devices()
+                print("✅ Received devices from the cloudant database.")
+            except:
+                # get devices from json file locally
+                self.get_devices_local()
+                print("✅ Received devices from a local file.")
+                
             time.sleep(self.params["sleep_time_devices"])
