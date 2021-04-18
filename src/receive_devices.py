@@ -66,11 +66,11 @@ class GetDevices:
 
         device_local_path = self.params["device_local_path"]
 
-        with open(device_local_path, 'r') as devices:
-            
+        with open(device_local_path, "r") as devices:
+
             devices = json.load(devices)
             for device in devices:
-                
+
                 try:
                     device_id = device["device_id"]
                     latitude = device["latitude"]
@@ -90,7 +90,6 @@ class GetDevices:
                 except:
                     pass
 
-
     def run(self):
         # run loop indefinitely
         while True:
@@ -103,5 +102,5 @@ class GetDevices:
                 # get devices from json file locally
                 self.get_devices_local()
                 print("✅ Received devices from a local file.")
-                
+
             time.sleep(self.params["sleep_time_devices"])
