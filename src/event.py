@@ -5,7 +5,6 @@ Event module
 # Import modules
 import numpy as np
 import scipy
-import matplotlib.pyplot as plt
 from inpoly import inpoly2
 import pickle
 import datetime
