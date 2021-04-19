@@ -89,16 +89,6 @@ class Devices:
 
     data: pd.DataFrame = pd.DataFrame()
 
-    def update(self, data):
-
-        data = json.loads(data)
-
-        # create a df
-        df_new = pd.DataFrame(data, index=[0])
-
-        # append to the data
-        self.data = self.data.append(df_new, ignore_index=True)
-
 
 @dataclass
 class Events:

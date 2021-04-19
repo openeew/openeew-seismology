@@ -22,9 +22,12 @@ array_samp = 352  # must be >= STA_len+LTA_len for 'stalta', or 300 for 'ml'
 STALTA_thresh = 3  # threshold for STA/LTA
 no_det_win = 60  # window without new detections after a detection
 vert_chan = "x"  # which channel is oriented in the vertical direction
-sleep_time = (
-    1  # the detection algorithm is going to pause for this time after each loop
-)
+sleep_time = 1  # the detection algorithm pauses for this time after each loop
+
+# DEVICE DATABASE
+sleep_time_devices = 10  # the update device table after this time
+db_name = "openeew-devices-historical"
+device_local_path = "./data/devices/device_locations.json"
 
 # LOCATION AND MAGNITUDE REGRESSION PARAMS
 tsl_max = 20  # save/discard event after this many seconds without a new detection
@@ -72,6 +75,9 @@ params = {
     "detection_model_name": detection_model_name,
     "buffer_len": buffer_len,
     "sleep_time": sleep_time,
+    "sleep_time_devices": sleep_time_devices,
+    "db_name": db_name,
+    "device_local_path": device_local_path,
     "mag1": mag1,
     "mag2": mag2,
     "mag3": mag3,

@@ -49,7 +49,7 @@ def main():
     events = data_holders.Events()
 
     # We create and start our devices update worker
-    stream = receive_devices.DeviceReceiver(devices)
+    stream = receive_devices.GetDevices(devices, params=params)
     receive_devices_process = Thread(target=stream.run)
     receive_devices_process.start()
 

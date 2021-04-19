@@ -1,74 +1,106 @@
-"""This script receives device data from MQTT by subscribing to the iot-2/type/OpenEEW/id/+/mon"""
+# import modules
+from cloudant.client import Cloudant
+from cloudant.error import CloudantException
+from cloudant.result import Result, ResultByKey
+from cloudant.database import CloudantDatabase
+
+from dotenv import dotenv_values
+import time
+import pandas as pd
 import json
-from argparse import ArgumentParser
-from paho.mqtt.client import Client as MqttClient
+
+ibm_cred = dotenv_values()
+
+SERVICE_USERNAME = ibm_cred["SERVICE_USERNAME"]
+SERVICE_PASSWORD = ibm_cred["SERVICE_PASSWORD"]
+SERVICE_URL = ibm_cred["SERVICE_URL"]
 
 
-class DeviceReceiver:
-    """This class subscribes to the MQTT and receivces raw data"""
+class GetDevices:
+    """This class gets the devices from Cloudant"""
 
-    def __init__(self, df_receivers) -> None:
-        """Initializes the DataReceiver object"""
+    def __init__(self, devices, params) -> None:
         super().__init__()
-        self.df_receivers = df_receivers
+        self.devices = devices
+        self.params = params
+
+    def get_devices(self):
+        # Establish a connection with the service instance.
+        client = Cloudant(SERVICE_USERNAME, SERVICE_PASSWORD, url=SERVICE_URL)
+        client.connect()
+
+        database_name = self.params["db_name"]
+        my_database = client[database_name]
+
+        all_devices = Result(my_database.all_docs, include_docs=True)
+
+        # create empty device df to replace the old one
+        new_device_table = pd.DataFrame()
+
+        for device in all_devices:
+
+            if device["doc"]["status"] == "Connect":
+
+                try:
+                    device_id = device["doc"]["DeviceID"]
+                    latitude = device["doc"]["latitude"]
+                    longitude = device["doc"]["longitude"]
+
+                    dev = pd.DataFrame(
+                        {
+                            "device_id": device_id,
+                            "latitude": latitude,
+                            "longitude": longitude,
+                        },
+                        index=[0],
+                    )
+
+                    new_device_table = new_device_table.append(dev, ignore_index=True)
+
+                except:
+                    pass
+
+        self.devices.data = new_device_table
+
+    def get_devices_local(self):
+
+        device_local_path = self.params["device_local_path"]
+
+        with open(device_local_path, "r") as devices:
+
+            devices = json.load(devices)
+            for device in devices:
+
+                try:
+                    device_id = device["device_id"]
+                    latitude = device["latitude"]
+                    longitude = device["longitude"]
+
+                    dev = pd.DataFrame(
+                        {
+                            "device_id": device_id,
+                            "latitude": latitude,
+                            "longitude": longitude,
+                        },
+                        index=[0],
+                    )
+
+                    new_device_table = new_device_table.append(dev, ignore_index=True)
+
+                except:
+                    pass
 
     def run(self):
-        """Main method that parses command options and executes the rest of the script"""
-        parser = ArgumentParser()
-        parser.add_argument("--username", help="MQTT username")
-        parser.add_argument("--password", help="MQTT password")
-        parser.add_argument(
-            "--clientid", help="MQTT clientID", default="recieve_devices_simulator"
-        )
-        parser.add_argument(
-            "--host",
-            help="MQTT host",
-            nargs="?",
-            const="localhost",
-            default="localhost",
-        )
-        parser.add_argument(
-            "--port", help="MQTT port", nargs="?", type=int, const=1883, default=1883
-        )
-        arguments = parser.parse_args()
+        # run loop indefinitely
+        while True:
 
-        client = self.create_client(
-            arguments.host,
-            arguments.port,
-            arguments.username,
-            arguments.password,
-            arguments.clientid,
-        )
+            try:
+                # try to get devices from cloud
+                self.get_devices()
+                print("✅ Received devices from the cloudant database.")
+            except:
+                # get devices from json file locally
+                self.get_devices_local()
+                print("✅ Received devices from a local file.")
 
-        client.loop_forever()
-
-    def create_client(self, host, port, username, password, clientid):
-        """Creating an MQTT Client Object"""
-        client = MqttClient(clientid)
-
-        if username and password:
-            client.username_pw_set(username=username, password=password)
-
-        client.on_connect = self.on_connect
-        client.on_message = self.on_message
-        client.connect(host=host, port=port)
-        return client
-
-    def on_connect(self, client, userdata, flags, resultcode):
-        """Upon connecting to an MQTT server, subscribe to a topic
-        the production topic is 'iot-2/type/OpenEEW/id/+/mon'"""
-
-        topic = "iot-2/type/OpenEEW/id/+/mon"
-        print(f"✅ Subscribed to devices with result code {resultcode}")
-        client.subscribe(topic)
-
-    def on_message(self, client, userdata, message):
-        """When a message is sent to a subscribed topic,
-        decode the message and send it to another method"""
-        try:
-            decoded_message = str(message.payload.decode("utf-8", "ignore"))
-            data = json.loads(decoded_message)
-
-            self.df_receivers.update(data)
-        except BaseException as exception:
-            print(exception)
+            time.sleep(self.params["sleep_time_devices"])

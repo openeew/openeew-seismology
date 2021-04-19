@@ -1,6 +1,6 @@
 [
   {
-    "device_id": 0,
+    "device_id": "000",
     "latitude": 19.33,
     "longitude": -99.18,
     "elev": 0,
@@ -9,7 +9,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 1,
+    "device_id": "001",
     "latitude": 15.67,
     "longitude": -96.5,
     "elev": 0,
@@ -18,7 +18,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 2,
+    "device_id": "002",
     "latitude": 15.86,
     "longitude": -97.07,
     "elev": 0,
@@ -27,7 +27,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 4,
+    "device_id": "004",
     "latitude": 16.35,
     "longitude": -98.05,
     "elev": 0,
@@ -36,7 +36,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 5,
+    "device_id": "005",
     "latitude": 16.44,
     "longitude": -95.02,
     "elev": 0,
@@ -45,7 +45,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 6,
+    "device_id": "006",
     "latitude": 16.68,
     "longitude": -98.4,
     "elev": 0,
@@ -54,7 +54,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 7,
+    "device_id": "007",
     "latitude": 16.32,
     "longitude": -95.24,
     "elev": 0,
@@ -63,7 +63,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 8,
+    "device_id": "008",
     "latitude": 16.61,
     "longitude": -98.98,
     "elev": 0,
@@ -72,7 +72,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 9,
+    "device_id": "009",
     "latitude": 16.72,
     "longitude": -99.12,
     "elev": 0,
@@ -81,7 +81,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 10,
+    "device_id": "010",
     "latitude": 16.79,
     "longitude": -99.39,
     "elev": 0,
@@ -90,7 +90,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 11,
+    "device_id": "011",
     "latitude": 16.84,
     "longitude": -99.9,
     "elev": 0,
@@ -99,7 +99,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 12,
+    "device_id": "012",
     "latitude": 16.36,
     "longitude": -94.19,
     "elev": 0,
@@ -108,7 +108,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 13,
+    "device_id": "013",
     "latitude": 16.09,
     "longitude": -93.75,
     "elev": 0,
@@ -117,7 +117,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 14,
+    "device_id": "014",
     "latitude": 16.87,
     "longitude": -99.89,
     "elev": 0,
@@ -126,7 +126,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 15,
+    "device_id": "015",
     "latitude": 17.01,
     "longitude": -100.09,
     "elev": 0,
@@ -135,7 +135,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 16,
+    "device_id": "016",
     "latitude": 16.01,
     "longitude": -97.45,
     "elev": 0,
@@ -144,7 +144,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 17,
+    "device_id": "017",
     "latitude": 17.23,
     "longitude": -100.63,
     "elev": 0,
@@ -153,7 +153,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 18,
+    "device_id": "018",
     "latitude": 17.26,
     "longitude": -100.88,
     "elev": 0,
@@ -162,7 +162,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 19,
+    "device_id": "019",
     "latitude": 17.27,
     "longitude": -101.05,
     "elev": 0,
@@ -171,7 +171,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 20,
+    "device_id": "020",
     "latitude": 17.54,
     "longitude": -101.28,
     "elev": 0,
@@ -180,7 +180,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 21,
+    "device_id": "021",
     "latitude": 17.64,
     "longitude": -101.48,
     "elev": 0,
@@ -189,7 +189,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 22,
+    "device_id": "022",
     "latitude": 17.64,
     "longitude": -101.57,
     "elev": 0,
@@ -198,7 +198,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 23,
+    "device_id": "023",
     "latitude": 17.65,
     "longitude": -101.55,
     "elev": 0,
@@ -207,7 +207,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 24,
+    "device_id": "024",
     "latitude": 17.98,
     "longitude": -101.81,
     "elev": 0,
@@ -216,7 +216,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 25,
+    "device_id": "025",
     "latitude": 17.96,
     "longitude": -102.2,
     "elev": 0,
@@ -225,7 +225,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 26,
+    "device_id": "026",
     "latitude": 18.72,
     "longitude": -98.78,
     "elev": 0,
@@ -234,7 +234,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 27,
+    "device_id": "027",
     "latitude": 19.05,
     "longitude": -98.27,
     "elev": 0,
@@ -243,7 +243,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 29,
+    "device_id": "029",
     "latitude": 18.96,
     "longitude": -99.24,
     "elev": 0,
@@ -252,7 +252,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 33,
+    "device_id": "033",
     "latitude": 18.93,
     "longitude": -99.2,
     "elev": 0,
@@ -261,7 +261,7 @@
     "device_type": " OpenEEW-2.0"
   },
   {
-    "device_id": 999,
+    "device_id": "999",
     "latitude": 16.01,
     "longitude": -97.45,
     "elev": 0,
