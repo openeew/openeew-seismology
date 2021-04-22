@@ -8,13 +8,7 @@ from dotenv import dotenv_values
 import time
 import pandas as pd
 import json
-
-ibm_cred = dotenv_values()
-
-SERVICE_USERNAME = ibm_cred["SERVICE_USERNAME"]
-SERVICE_PASSWORD = ibm_cred["SERVICE_PASSWORD"]
-SERVICE_URL = ibm_cred["SERVICE_URL"]
-
+import os
 
 class GetDevices:
     """This class gets the devices from Cloudant"""
@@ -26,7 +20,10 @@ class GetDevices:
 
     def get_devices(self):
         # Establish a connection with the service instance.
-        client = Cloudant(SERVICE_USERNAME, SERVICE_PASSWORD, url=SERVICE_URL)
+        client = Cloudant(
+            os.environ["CLOUDANT_USERNAME"],
+            os.environ["CLOUDANT_PASSWORD"],
+            url=os.environ["CLOUDANT_URL"])
         client.connect()
 
         database_name = self.params["db_name"]

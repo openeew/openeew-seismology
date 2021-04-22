@@ -2,6 +2,12 @@
 This file sets parameters used in real-time OpenEEW algorithm
 """
 
+# MQTT
+MQTT = "IBM" # local or IBM
+
+# HISTORICAL DATA PATH
+hist_data_path = "../data/2017_12_25"
+
 # TRAVEL TIME GRID AND CALCULATION
 region = "mx"
 lat_min = 13  # minimum latitude
@@ -59,6 +65,8 @@ mag9 = (1.32, 5.19, 1, 0.47)
 
 
 params = {
+    "MQTT": MQTT,
+    "hist_data_path": hist_data_path,
     "region": region,
     "lat_min": lat_min,
     "lat_max": lat_max,

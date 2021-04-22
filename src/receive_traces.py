@@ -3,43 +3,41 @@ import json
 from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
 import datetime
+import os
 
 
 class DataReceiver:
     """This class subscribes to the MQTT and receivces raw data"""
 
-    def __init__(self, df_holder) -> None:
+    def __init__(self, df_holder, params) -> None:
         """Initializes the DataReceiver object"""
         super().__init__()
         self.df_holder = df_holder
+        self.params = params
 
     def run(self):
-        """Main method that parses command options and executes the rest of the script"""
-        parser = ArgumentParser()
-        parser.add_argument("--username", help="MQTT username")
-        parser.add_argument("--password", help="MQTT password")
-        parser.add_argument(
-            "--clientid", help="MQTT clientID", default="recieve_traces_simulator"
-        )
-        parser.add_argument(
-            "--host",
-            help="MQTT host",
-            nargs="?",
-            const="localhost",
-            default="localhost",
-        )
-        parser.add_argument(
-            "--port", help="MQTT port", nargs="?", type=int, const=1883, default=1883
-        )
-        arguments = parser.parse_args()
+        """Main method that creates client and executes the rest of the script"""
 
-        client = self.create_client(
-            arguments.host,
-            arguments.port,
-            arguments.username,
-            arguments.password,
-            arguments.clientid,
-        )
+        if self.params["MQTT"]=="IBM":
+            # create a client
+            client = self.create_client(
+                host=os.environ["MQTT_HOST"],
+                port=1883,
+                username=os.environ["MQTT_USERNAME"],
+                password=os.environ["MQTT_PASSWORD"],
+                clientid=os.environ["MQTT_CLIENTID"]+"trace"
+            )
+
+        elif self.params["MQTT"]=="local":
+            # create a client
+            client = self.create_client(
+                host="localhost",
+                port=1883,
+                username="NA",
+                password="NA",
+                clientid="NA:"+"trace"
+            )
+
         client.loop_forever()
 
     def create_client(self, host, port, username, password, clientid):
@@ -56,9 +54,10 @@ class DataReceiver:
 
     def on_connect(self, client, userdata, flags, resultcode):
         """Upon connecting to an MQTT server, subscribe to the topic
-        The production topic is 'iot-2/type/OpenEEW/id/+/evt/status/fmt/json'"""
+        The production topic is 'iot-2/type/OpenEEW/id/+/evt/trace/fmt/json'"""
 
-        topic = "iot-2/type/OpenEEW/id/+/evt/status/fmt/json"
+        topic = "iot-2/type/OpenEEW/id/" + self.params["region"] + "/evt/trace/fmt/json"
+        print("iot-2/type/OpenEEW/id/" + self.params["region"] + "/evt/trace/fmt/json")
         print(f"✅ Subscribed to sensor data with result code {resultcode}")
         client.subscribe(topic)
 

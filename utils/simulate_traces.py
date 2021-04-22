@@ -9,39 +9,38 @@ import pandas as pd
 import time
 from datetime import datetime
 
+import os,sys,inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir) 
+from params import params
+
 
 def run():
-    """Main method that parses command options and executes the rest of the script"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--host", help="An MQTT host", nargs="?", const="localhost", default="localhost"
-    )
-    parser.add_argument(
-        "--port", help="An MQTT port", nargs="?", type=int, const=1883, default=1883
-    )
-    parser.add_argument(
-        "--directory",
-        help="A directory containing *.JSONL files",
-        nargs="?",
-        default="../data/2017_12_15",
-    )
+    """Main method that creates client and executes the rest of the script"""
 
-    parser.add_argument("--clientid", help="MQTT clientID", default="simulator_traces")
+    if params["MQTT"]=="IBM":
+        # create a client
+        client = create_client(
+            host=os.environ["MQTT_HOST"],
+            port=1883,
+            username=os.environ["MQTT_USERNAME"],
+            password=os.environ["MQTT_PASSWORD"],
+        )
 
-    # If MQTT has username and password authentication on
-    parser.add_argument("--username", help="A username for the MQTT Server")
-    parser.add_argument("--password", help="A password for the MQTT server")
-
-    arguments = parser.parse_args()
-
-    client = create_client(
-        arguments.host, arguments.port, arguments.username, arguments.password
-    )
+    elif params["MQTT"]=="local":
+        # create a client
+        client = create_client(
+            host="localhost",
+            port=1883,
+            username="NA",
+            password="NA",
+        )
 
     publish_jsonl(
-        arguments.directory,
+        params["hist_data_path"],
         client,
-        "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json",
+        "iot-2/type/OpenEEW/id/" + params["region"] + "/evt/trace/fmt/json"
     )
 
 
@@ -77,7 +76,8 @@ def publish_jsonl(data_path, client, topic):
     timediff = timediff.iloc[1:].append(pd.Series([0])) / 1
 
     # loop over all json elements in the json array and publish to MQTT
-    for i in range(3200, len(data)):
+    for i in range(len(data)):
+        print(topic)
         json_str = data[["device_id", "x", "y", "z", "sr"]].iloc[i].to_json()
         client.publish(topic, json.dumps(json_str))
         time.sleep(timediff.iloc[i])

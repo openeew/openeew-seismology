@@ -3,35 +3,29 @@ import json
 from time import sleep
 from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
+import os
 
 
-def run(region, topic, json_data):
-    """Main method that parses command options and executes the rest of the script"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--host", help="An MQTT host", nargs="?", const="localhost", default="localhost"
-    )
-    parser.add_argument(
-        "--port", help="An MQTT port", nargs="?", type=int, const=1883, default=1883
-    )
-    parser.add_argument(
-        "--file",
-        help="A file containing list of devices in *.JSON ",
-        nargs="?",
-        default="../data/devices/publish_topic.json",
-    )
+def run(region, topic, json_data, params):
+    """Main method that creates client and executes the rest of the script"""
 
-    parser.add_argument("--clientid", help="MQTT clientID", default="publish_topic")
+    if params["MQTT"]=="IBM":
+        # create a client
+        client = create_client(
+            host=os.environ["MQTT_HOST"],
+            port=1883,
+            username=os.environ["MQTT_USERNAME"],
+            password=os.environ["MQTT_PASSWORD"],
+        )
 
-    # If MQTT has username and password authentication on
-    parser.add_argument("--username", help="A username for the MQTT Server")
-    parser.add_argument("--password", help="A password for the MQTT server")
-
-    arguments = parser.parse_args()
-
-    client = create_client(
-        arguments.host, arguments.port, arguments.username, arguments.password
-    )
+    elif params["MQTT"]=="local":
+        # create a client
+        client = create_client(
+            host="localhost",
+            port=1883,
+            username="NA",
+            password="NA",
+        )
 
     topic = "iot-2/type/OpenEEW/id/"+ region +"/evt/" + topic + "/fmt/json"
 
@@ -44,8 +38,8 @@ def publish_json(client, topic, data):
     """Publish each JSON to a given topic"""
 
     json_obj = json.dumps(data)
-    # print(f"Sending device {json_obj}")
-    client.publish(topic, json.dumps(json_obj))
+
+    client.publish(topic, json_obj)
 
 
 def create_client(host, port, username, password):

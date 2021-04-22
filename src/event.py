@@ -11,15 +11,6 @@ import datetime
 import math
 import time
 
-__author__ = "Vaclav Kuna"
-__copyright__ = ""
-__license__ = ""
-__version__ = "1.0"
-__maintainer__ = "Vaclav Kuna"
-__email__ = "kuna.vaclav@gmail.com"
-__status__ = ""
-
-
 class Event:
     """This class handles all the detection procedures"""
 

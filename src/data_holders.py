@@ -95,8 +95,9 @@ class Detections:
             ]
 
             for _, det in old_detections.iterrows():
-                json_data = det.to_json()
-                publish_mqtt.run(params["region"], "detection", json_data)
+                json_data = det.to_dict()
+
+                publish_mqtt.run(params["region"], "detection", json_data, params)
 
             # delete old detections
             self.data = self.data[
@@ -172,10 +173,10 @@ class Events:
     def publish_event(self, params, event_id):
         """Publishes event to mqtt"""
 
-        event =self.data[self.data["event_id"] == event_id].iloc[-1]
+        event = self.data[self.data["event_id"] == event_id].iloc[-1]
 
-        json_data = event.to_json()
-        publish_mqtt.run(params["region"], "event", json_data)
+        json_data = event.to_dict()
+        publish_mqtt.run(params["region"], "event", json_data, params)
 
 
 class TravelTimes:
