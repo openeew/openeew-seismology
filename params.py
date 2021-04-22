@@ -3,6 +3,7 @@ This file sets parameters used in real-time OpenEEW algorithm
 """
 
 # TRAVEL TIME GRID AND CALCULATION
+region = "mx"
 lat_min = 13  # minimum latitude
 lat_max = 23  # maximum latitude
 lon_min = -106  # minimum longitude
@@ -12,6 +13,7 @@ eq_depth = 20  # earthquake depth
 vel_model = "iasp91"  # velocity model from obspy list
 tt_path = "./obj/travel_times"  # relative path to the travel_time folder
 buffer_len = 15  # buffer_len*samp_rate must be longer than array_samp
+det_ev_buffer = 30 # how long to keep events and detections in buffer
 
 # DETECTION
 det_type = "stalta"  # 'stalta' or 'ml' for machine learning
@@ -57,6 +59,7 @@ mag9 = (1.32, 5.19, 1, 0.47)
 
 
 params = {
+    "region": region,
     "lat_min": lat_min,
     "lat_max": lat_max,
     "lon_min": lon_min,
@@ -74,6 +77,7 @@ params = {
     "array_samp": array_samp,
     "detection_model_name": detection_model_name,
     "buffer_len": buffer_len,
+    "det_ev_buffer": det_ev_buffer,
     "sleep_time": sleep_time,
     "sleep_time_devices": sleep_time_devices,
     "db_name": db_name,

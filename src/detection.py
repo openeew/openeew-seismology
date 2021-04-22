@@ -190,7 +190,7 @@ class Detect:
         """
 
         # define variables
-        sr = self.params["samp_rate"]  # definition of sampling frequency
+        sr = self.raw_data.data["sr"][0]  # definition of sampling frequency
 
         # double integration of stream in displacement
         trace = np.cumsum(trace * 1 / sr)
@@ -250,36 +250,36 @@ class Detect:
         # for each detection, do
         for index, detection in detections.iterrows():
 
-            try:
-                device_id = detection["device_id"]
-                det_cloud_t = detection["cloud_t"]
+            # try:
+            device_id = detection["device_id"]
+            det_cloud_t = detection["cloud_t"]
 
-                trace = self.raw_data.data[
-                    (self.raw_data.data["device_id"] == device_id)
-                    & (self.raw_data.data["cloud_t"] > det_cloud_t)
-                ][vert_chan]
-                time = self.raw_data.data[
-                    (self.raw_data.data["device_id"] == device_id)
-                    & (self.raw_data.data["cloud_t"] > det_cloud_t)
-                ]["cloud_t"]
+            trace = self.raw_data.data[
+                (self.raw_data.data["device_id"] == device_id)
+                & (self.raw_data.data["cloud_t"] > det_cloud_t)
+            ][vert_chan]
+            time = self.raw_data.data[
+                (self.raw_data.data["device_id"] == device_id)
+                & (self.raw_data.data["cloud_t"] > det_cloud_t)
+            ]["cloud_t"]
 
-                # get the peak ground displacement for [1,2,3,4,5,6,7,8,9] s windows
-                pd_max = self.get_pd(trace, time, det_cloud_t)
+            # get the peak ground displacement for [1,2,3,4,5,6,7,8,9] s windows
+            pd_max = self.get_pd(trace, time, det_cloud_t)
 
-                entry = tuple([None if np.isnan(n) else n for n in pd_max])
+            entry = tuple([None if np.isnan(n) else n for n in pd_max])
 
-                self.detections.data.loc[index, "mag1"] = entry[0]
-                self.detections.data.loc[index, "mag2"] = entry[1]
-                self.detections.data.loc[index, "mag3"] = entry[2]
-                self.detections.data.loc[index, "mag4"] = entry[3]
-                self.detections.data.loc[index, "mag5"] = entry[4]
-                self.detections.data.loc[index, "mag6"] = entry[5]
-                self.detections.data.loc[index, "mag7"] = entry[6]
-                self.detections.data.loc[index, "mag8"] = entry[7]
-                self.detections.data.loc[index, "mag9"] = entry[8]
+            self.detections.data.loc[index, "mag1"] = entry[0]
+            self.detections.data.loc[index, "mag2"] = entry[1]
+            self.detections.data.loc[index, "mag3"] = entry[2]
+            self.detections.data.loc[index, "mag4"] = entry[3]
+            self.detections.data.loc[index, "mag5"] = entry[4]
+            self.detections.data.loc[index, "mag6"] = entry[5]
+            self.detections.data.loc[index, "mag7"] = entry[6]
+            self.detections.data.loc[index, "mag8"] = entry[7]
+            self.detections.data.loc[index, "mag9"] = entry[8]
 
-            except:
-                pass
+            # except:
+            #     pass
 
     def run(self):
         # run loop indefinitely
