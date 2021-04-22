@@ -37,10 +37,13 @@ def run():
             password="NA",
         )
 
+    # topic = "iot-2/type/OpenEEW/id/" + params["region"] + "/evt/trace/fmt/json"
+    topic = "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json"
+
     publish_jsonl(
         params["hist_data_path"],
         client,
-        "iot-2/type/OpenEEW/id/" + params["region"] + "/evt/trace/fmt/json"
+        topic
     )
 
 

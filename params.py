@@ -3,7 +3,7 @@ This file sets parameters used in real-time OpenEEW algorithm
 """
 
 # MQTT
-MQTT = "IBM" # local or IBM
+MQTT = "local" # local or IBM
 
 # HISTORICAL DATA PATH
 hist_data_path = "../data/2017_12_25"
