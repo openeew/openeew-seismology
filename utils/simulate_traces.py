@@ -17,7 +17,7 @@ sys.path.insert(0, parent_dir)
 from params import params
 
 
-def run():
+def run(datapath):
     """Main method that creates client and executes the rest of the script"""
 
     if params["MQTT"] == "IBM":
@@ -40,10 +40,9 @@ def run():
             clientid=os.environ["MQTT_CLIENTID"] + "m",
         )
 
-    # topic = "iot-2/type/OpenEEW/id/" + params["region"] + "/evt/trace/fmt/json"
-    topic = "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json"
+    topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
 
-    publish_jsonl(params["hist_data_path"], client, topic)
+    publish_jsonl(datapath, client, topic)
 
 
 def create_client(host, port, username, password, clientid):
@@ -79,9 +78,10 @@ def publish_jsonl(data_path, client, topic):
 
     # loop over all json elements in the json array and publish to MQTT
     for i in range(len(data)):
-        print(topic)
+        
         json_str = data[["device_id", "x", "y", "z", "sr"]].iloc[i].to_json()
         client.publish(topic, json.dumps(json_str))
+
         time.sleep(timediff.iloc[i])
 
         print(
@@ -91,4 +91,29 @@ def publish_jsonl(data_path, client, topic):
         )
 
 
-run()
+eqs = [
+    # "2017_12_15",
+    "2017_12_25",
+    "2018_1_8",
+    "2018_8_12",
+    "2018_9_25",
+    "2020_1_11",
+    "2020_1_29",
+    "2020_3_30",
+    "2020_7_2",
+    "2017_12_16",
+    "2018_1_29",
+    "2018_2_16",
+    "2018_8_22",
+    "2019_3_9",
+    "2020_1_24",
+    "2020_1_30",
+    "2020_6_23"
+]
+
+for eq in eqs:
+
+    hist_data_path = "../data/" + eq
+    run(hist_data_path)
+
+    time.sleep(15)

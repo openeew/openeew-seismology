@@ -26,7 +26,7 @@ class DataReceiver:
             # create a client
             client = self.create_client(
                 host=os.environ["MQTT_HOST"],
-                port=os.environ["MQTT_PORT"],
+                port=int(os.environ["MQTT_PORT"]),
                 username=os.environ["MQTT_USERNAME"],
                 password=os.environ["MQTT_PASSWORD"],
                 clientid=os.environ["MQTT_CLIENTID"] + "trace",
@@ -60,8 +60,7 @@ class DataReceiver:
         """Upon connecting to an MQTT server, subscribe to the topic
         The production topic is 'iot-2/type/OpenEEW/id/+/evt/trace/fmt/json'"""
 
-        # topic = "iot-2/type/OpenEEW/id/" + self.params["region"] + "/evt/trace/fmt/json"
-        topic = "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json"
+        topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
 
         print(f"✅ Subscribed to sensor data with result code {resultcode}")
         client.subscribe(topic)
