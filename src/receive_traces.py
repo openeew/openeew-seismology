@@ -10,7 +10,11 @@ class DataReceiver:
     """This class subscribes to the MQTT and receivces raw data"""
 
     def __init__(self, df_holder, params) -> None:
-        """Initializes the DataReceiver object"""
+        """
+        Initializes the DataReceiver object
+        
+        MQTT variable in params (params["MQTT"]) define whether local, or IBM MQTT is used
+        """
         super().__init__()
         self.df_holder = df_holder
         self.params = params
@@ -18,24 +22,24 @@ class DataReceiver:
     def run(self):
         """Main method that creates client and executes the rest of the script"""
 
-        if self.params["MQTT"]=="IBM":
+        if self.params["MQTT"] == "IBM":
             # create a client
             client = self.create_client(
                 host=os.environ["MQTT_HOST"],
-                port=1883,
+                port=os.environ["MQTT_PORT"],
                 username=os.environ["MQTT_USERNAME"],
                 password=os.environ["MQTT_PASSWORD"],
-                clientid=os.environ["MQTT_CLIENTID"]+"trace"
+                clientid=os.environ["MQTT_CLIENTID"] + "trace",
             )
 
-        elif self.params["MQTT"]=="local":
+        elif self.params["MQTT"] == "local":
             # create a client
             client = self.create_client(
                 host="localhost",
                 port=1883,
                 username="NA",
                 password="NA",
-                clientid="NA:"+"trace"
+                clientid="NA:" + "trace",
             )
 
         client.loop_forever()
@@ -58,7 +62,7 @@ class DataReceiver:
 
         # topic = "iot-2/type/OpenEEW/id/" + self.params["region"] + "/evt/trace/fmt/json"
         topic = "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json"
-        
+
         print(f"✅ Subscribed to sensor data with result code {resultcode}")
         client.subscribe(topic)
 

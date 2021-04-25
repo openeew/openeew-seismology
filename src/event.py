@@ -11,6 +11,7 @@ import datetime
 import math
 import time
 
+
 class Event:
     """This class handles all the detection procedures"""
 
@@ -543,7 +544,7 @@ class Event:
 
         # set initial magnitude and confidence intervals
         # (just a rough estimate)
-        if magnitude==0:
+        if magnitude == 0:
             magnitude = 4
             conf2 = 2
             conf16 = 3

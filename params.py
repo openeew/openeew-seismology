@@ -3,7 +3,7 @@ This file sets parameters used in real-time OpenEEW algorithm
 """
 
 # MQTT
-MQTT = "local" # local or IBM
+MQTT = "IBM"  # local or IBM
 
 # HISTORICAL DATA PATH
 hist_data_path = "../data/2017_12_25"
@@ -19,7 +19,7 @@ eq_depth = 20  # earthquake depth
 vel_model = "iasp91"  # velocity model from obspy list
 tt_path = "./obj/travel_times"  # relative path to the travel_time folder
 buffer_len = 15  # buffer_len*samp_rate must be longer than array_samp
-det_ev_buffer = 30 # how long to keep events and detections in buffer
+det_ev_buffer = 30  # how long to keep events and detections in buffer
 
 # DETECTION
 det_type = "stalta"  # 'stalta' or 'ml' for machine learning

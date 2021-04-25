@@ -17,6 +17,7 @@ from src import (
     travel_time,
 )
 
+
 def main():
     """Does everything"""
 

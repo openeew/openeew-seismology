@@ -7,18 +7,22 @@ import os
 
 
 def run(region, topic, json_data, params):
-    """Main method that creates client and executes the rest of the script"""
+    """
+    Main method that creates client and executes the rest of the script
+    
+    MQTT variable in params (params["MQTT"]) define whether local, or IBM MQTT is used
+    """
 
-    if params["MQTT"]=="IBM":
+    if params["MQTT"] == "IBM":
         # create a client
         client = create_client(
             host=os.environ["MQTT_HOST"],
-            port=1883,
+            port=os.environ["MQTT_PORT"],
             username=os.environ["MQTT_USERNAME"],
             password=os.environ["MQTT_PASSWORD"],
         )
 
-    elif params["MQTT"]=="local":
+    elif params["MQTT"] == "local":
         # create a client
         client = create_client(
             host="localhost",
@@ -27,7 +31,7 @@ def run(region, topic, json_data, params):
             password="NA",
         )
 
-    topic = "iot-2/type/OpenEEW/id/"+ region +"/evt/" + topic + "/fmt/json"
+    topic = "iot-2/type/OpenEEW/id/" + region + "/evt/" + topic + "/fmt/json"
 
     publish_json(client, topic, json_data)
 

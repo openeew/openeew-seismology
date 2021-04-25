@@ -10,6 +10,7 @@ import pandas as pd
 import json
 import os
 
+
 class GetDevices:
     """This class gets the devices from Cloudant"""
 
@@ -23,7 +24,8 @@ class GetDevices:
         client = Cloudant(
             os.environ["CLOUDANT_USERNAME"],
             os.environ["CLOUDANT_PASSWORD"],
-            url=os.environ["CLOUDANT_URL"])
+            url=os.environ["CLOUDANT_URL"],
+        )
         client.connect()
 
         database_name = self.params["db_name"]

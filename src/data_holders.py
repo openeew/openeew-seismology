@@ -103,10 +103,7 @@ class Detections:
             self.data = self.data[
                 (self.data["cloud_t"] + params["det_ev_buffer"]) >= cloud_t
             ]
-            print(
-                "▫️ Number of detections in the buffer "
-                + str(len(self.data))
-            )
+            print("▫️ Number of detections in the buffer " + str(len(self.data)))
         except:
             pass
 
@@ -139,7 +136,7 @@ class Events:
             "mconf16",
             "mconf84",
             "mconf98",
-            "num_assoc"
+            "num_assoc",
         ]
     )
 
@@ -163,10 +160,7 @@ class Events:
             self.data = self.data[
                 (self.data["cloud_t"] + params["det_ev_buffer"]) >= cloud_t
             ]
-            print(
-                "▫️ Number of events in the buffer "
-                + str(len(self.data))
-            )
+            print("▫️ Number of events in the buffer " + str(len(self.data)))
         except:
             pass
 

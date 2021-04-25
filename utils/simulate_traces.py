@@ -9,47 +9,46 @@ import pandas as pd
 import time
 from datetime import datetime
 
-import os,sys,inspect
+import os, sys, inspect
+
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir) 
+sys.path.insert(0, parent_dir)
 from params import params
 
 
 def run():
     """Main method that creates client and executes the rest of the script"""
 
-    if params["MQTT"]=="IBM":
+    if params["MQTT"] == "IBM":
         # create a client
         client = create_client(
             host=os.environ["MQTT_HOST"],
             port=1883,
             username=os.environ["MQTT_USERNAME"],
             password=os.environ["MQTT_PASSWORD"],
+            clientid=os.environ["MQTT_CLIENTID"] + "m"
         )
 
-    elif params["MQTT"]=="local":
+    elif params["MQTT"] == "local":
         # create a client
         client = create_client(
             host="localhost",
             port=1883,
             username="NA",
             password="NA",
+            clientid=os.environ["MQTT_CLIENTID"] + "m"
         )
 
     # topic = "iot-2/type/OpenEEW/id/" + params["region"] + "/evt/trace/fmt/json"
     topic = "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json"
 
-    publish_jsonl(
-        params["hist_data_path"],
-        client,
-        topic
-    )
+    publish_jsonl(params["hist_data_path"], client, topic)
 
 
-def create_client(host, port, username, password):
+def create_client(host, port, username, password, clientid):
     """Creating an MQTT Client Object"""
-    client = MqttClient()
+    client = MqttClient(clientid)
 
     if username and password:
         client.username_pw_set(username=username, password=password)
