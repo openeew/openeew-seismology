@@ -27,7 +27,7 @@ def run():
             port=1883,
             username=os.environ["MQTT_USERNAME"],
             password=os.environ["MQTT_PASSWORD"],
-            clientid=os.environ["MQTT_CLIENTID"] + "m"
+            clientid=os.environ["MQTT_CLIENTID"] + "m",
         )
 
     elif params["MQTT"] == "local":
@@ -37,7 +37,7 @@ def run():
             port=1883,
             username="NA",
             password="NA",
-            clientid=os.environ["MQTT_CLIENTID"] + "m"
+            clientid=os.environ["MQTT_CLIENTID"] + "m",
         )
 
     # topic = "iot-2/type/OpenEEW/id/" + params["region"] + "/evt/trace/fmt/json"

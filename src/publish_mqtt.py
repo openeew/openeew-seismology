@@ -9,7 +9,7 @@ import os
 def run(region, topic, json_data, params):
     """
     Main method that creates client and executes the rest of the script
-    
+
     MQTT variable in params (params["MQTT"]) define whether local, or IBM MQTT is used
     """
 

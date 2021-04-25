@@ -12,7 +12,7 @@ class DataReceiver:
     def __init__(self, df_holder, params) -> None:
         """
         Initializes the DataReceiver object
-        
+
         MQTT variable in params (params["MQTT"]) define whether local, or IBM MQTT is used
         """
         super().__init__()
