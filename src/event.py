@@ -84,28 +84,28 @@ class Event:
 
     def set_new_event(self, new_index, new_detection):
         """This sets a new event in the class"""
-        
+
         # Get event ID
         # region
         region = self.params["region"]
 
         # timestamp
         timestamp = datetime.datetime.utcfromtimestamp(new_detection["cloud_t"])
-        year = str(timestamp.year-2000).zfill(2)
+        year = str(timestamp.year - 2000).zfill(2)
         month = str(timestamp.month).zfill(2)
         day = str(timestamp.day).zfill(2)
         hour = str(timestamp.hour).zfill(2)
         minute = str(timestamp.minute).zfill(2)
         event_id = "E_" + region + year + month + day + hour + minute
-        
+
         # alphabet letter
         all_events_id = list(set(self.events.data["event_id"].to_list()))
-        all_events_id = [n for n in all_events_id if n[:-1]==event_id]
+        all_events_id = [n for n in all_events_id if n[:-1] == event_id]
         letter_count = len(all_events_id)
-        
+
         # while id
-        event_id = event_id + chr(ord('@')+letter_count+1)
-        
+        event_id = event_id + chr(ord("@") + letter_count + 1)
+
         self.active_events[event_id] = {}
 
         # Get location and magnitude based on the first detection

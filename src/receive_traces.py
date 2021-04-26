@@ -39,7 +39,7 @@ class DataReceiver:
                 port=1883,
                 username="NA",
                 password="NA",
-                clientid="NA:" + "trace",
+                clientid="NA:" + "trace" + "_seis",
             )
 
         client.loop_forever()

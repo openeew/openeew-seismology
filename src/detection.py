@@ -96,7 +96,7 @@ class Detect:
 
                     # timestamp
                     timestamp = datetime.utcfromtimestamp(min(det_time))
-                    year = str(timestamp.year-2000).zfill(2)
+                    year = str(timestamp.year - 2000).zfill(2)
                     month = str(timestamp.month).zfill(2)
                     day = str(timestamp.day).zfill(2)
                     hour = str(timestamp.hour).zfill(2)

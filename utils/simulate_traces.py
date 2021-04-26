@@ -78,7 +78,7 @@ def publish_jsonl(data_path, client, topic):
 
     # loop over all json elements in the json array and publish to MQTT
     for i in range(len(data)):
-        
+
         json_str = data[["device_id", "x", "y", "z", "sr"]].iloc[i].to_json()
         client.publish(topic, json.dumps(json_str))
 
@@ -108,7 +108,7 @@ eqs = [
     "2019_3_9",
     "2020_1_24",
     "2020_1_30",
-    "2020_6_23"
+    "2020_6_23",
 ]
 
 for eq in eqs:

@@ -169,7 +169,7 @@ class Events:
 
         event = self.data[self.data["event_id"] == event_id].iloc[-1]
 
-        if event["num_assoc"]>=params["ndef_min"]:
+        if event["num_assoc"] >= params["ndef_min"]:
 
             json_data = event.to_dict()
             publish_mqtt.run(params["region"], "event", json_data, params)
