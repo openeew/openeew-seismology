@@ -47,7 +47,7 @@ def run(datapath):
             port=int(os.environ["CUS_MQTT_PORT"]),
             username=os.environ["CUS_MQTT_USERNAME"],
             password=os.environ["CUS_MQTT_PASSWORD"],
-            clientid=os.environ["CUS_MQTT_CLIENTID"] + "sim"
+            clientid=os.environ["CUS_MQTT_CLIENTID"] + "sim",
         )
 
     topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
@@ -118,7 +118,7 @@ eqs = [
     "2020_1_30",
     "2020_3_30",
     "2020_6_23",
-    "2020_7_2"
+    "2020_7_2",
 ]
 
 for eq in eqs:
