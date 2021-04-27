@@ -24,7 +24,7 @@ def run(datapath):
         # create a client
         client = create_client(
             host=os.environ["MQTT_HOST"],
-            port=1883,
+            port=os.environ["MQTT_PORT"],
             username=os.environ["MQTT_USERNAME"],
             password=os.environ["MQTT_PASSWORD"],
             clientid=os.environ["MQTT_CLIENTID"] + "m",
@@ -38,6 +38,16 @@ def run(datapath):
             username="NA",
             password="NA",
             clientid=os.environ["MQTT_CLIENTID"] + "m",
+        )
+
+    elif params["MQTT"] == "custom":
+        # create a client
+        client = create_client(
+            host=os.environ["CUS_MQTT_HOST"],
+            port=int(os.environ["CUS_MQTT_PORT"]),
+            username=os.environ["CUS_MQTT_USERNAME"],
+            password=os.environ["CUS_MQTT_PASSWORD"],
+            clientid=os.environ["CUS_MQTT_CLIENTID"] + "sim"
         )
 
     topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
@@ -92,23 +102,23 @@ def publish_jsonl(data_path, client, topic):
 
 
 eqs = [
-    # "2017_12_15",
+    "2017_12_15",
+    "2017_12_16",
     "2017_12_25",
     "2018_1_8",
-    "2018_8_12",
-    "2018_9_25",
-    "2020_1_11",
-    "2020_1_29",
-    "2020_3_30",
-    "2020_7_2",
-    "2017_12_16",
     "2018_1_29",
     "2018_2_16",
+    "2018_8_12",
     "2018_8_22",
+    "2018_9_25",
     "2019_3_9",
+    "2020_1_11",
     "2020_1_24",
+    "2020_1_29",
     "2020_1_30",
+    "2020_3_30",
     "2020_6_23",
+    "2020_7_2"
 ]
 
 for eq in eqs:
@@ -116,4 +126,4 @@ for eq in eqs:
     hist_data_path = "../data/" + eq
     run(hist_data_path)
 
-    time.sleep(15)
+    time.sleep(200)

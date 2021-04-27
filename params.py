@@ -3,7 +3,7 @@ This file sets parameters used in real-time OpenEEW algorithm
 """
 
 # MQTT
-MQTT = "local"  # local or IBM
+MQTT = "custom"  # local, custom, or IBM
 
 # TRAVEL TIME GRID AND CALCULATION
 region = "MX"
