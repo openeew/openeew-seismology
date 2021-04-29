@@ -31,6 +31,16 @@ def run(region, topic, json_data, params):
             password="NA",
         )
 
+    elif params["MQTT"] == "custom":
+        # create a client
+        client = create_client(
+            host=os.environ["CUS_MQTT_HOST"],
+            port=int(os.environ["CUS_MQTT_PORT"]),
+            username=os.environ["CUS_MQTT_USERNAME"],
+            password=os.environ["CUS_MQTT_PASSWORD"],
+            cafile=os.environ["CUS_MQTT_CERT"]
+        )
+
     topic = "iot-2/type/OpenEEW/id/" + region + "/evt/" + topic + "/fmt/json"
 
     publish_json(client, topic, json_data)
@@ -46,12 +56,15 @@ def publish_json(client, topic, data):
     client.publish(topic, json_obj)
 
 
-def create_client(host, port, username, password):
+def create_client(host, port, username, password, cafile=None):
     """Creating an MQTT Client Object"""
     client = MqttClient()
 
     if username and password:
         client.username_pw_set(username=username, password=password)
+
+    if cafile:
+        client.tls_set(ca_certs=cafile)
 
     client.connect(host=host, port=port)
     return client

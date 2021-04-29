@@ -49,17 +49,21 @@ class DataReceiver:
                 port=int(os.environ["CUS_MQTT_PORT"]),
                 username=os.environ["CUS_MQTT_USERNAME"],
                 password=os.environ["CUS_MQTT_PASSWORD"],
-                clientid=os.environ["CUS_MQTT_CLIENTID"] + "sub",
+                clientid=os.environ["CUS_MQTT_CLIENTID"] + "rec",
+                cafile=os.environ["CUS_MQTT_CERT"]
             )
 
         client.loop_forever()
 
-    def create_client(self, host, port, username, password, clientid):
+    def create_client(self, host, port, username, password, clientid, cafile=None):
         """Creating an MQTT Client Object"""
         client = MqttClient(clientid)
 
         if username and password:
             client.username_pw_set(username=username, password=password)
+        
+        if cafile:
+            client.tls_set(ca_certs=cafile)
 
         client.on_connect = self.on_connect
         client.on_message = self.on_message
