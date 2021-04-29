@@ -38,7 +38,7 @@ def run(region, topic, json_data, params):
             port=int(os.environ["CUS_MQTT_PORT"]),
             username=os.environ["CUS_MQTT_USERNAME"],
             password=os.environ["CUS_MQTT_PASSWORD"],
-            cafile=os.environ["CUS_MQTT_CERT"]
+            cafile=os.environ["CUS_MQTT_CERT"],
         )
 
     topic = "iot-2/type/OpenEEW/id/" + region + "/evt/" + topic + "/fmt/json"

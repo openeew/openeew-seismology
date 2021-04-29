@@ -48,7 +48,7 @@ def run(datapath):
             username=os.environ["CUS_MQTT_USERNAME"],
             password=os.environ["CUS_MQTT_PASSWORD"],
             clientid=os.environ["CUS_MQTT_CLIENTID"] + "sim",
-            cafile=os.environ["CUS_MQTT_CERT"]
+            cafile=os.environ["CUS_MQTT_CERT"],
         )
 
     topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
@@ -62,7 +62,7 @@ def create_client(host, port, username, password, clientid, cafile=None):
 
     if username and password:
         client.username_pw_set(username=username, password=password)
-    
+
     if cafile:
         client.tls_set(ca_certs=cafile)
 
@@ -106,7 +106,7 @@ def publish_jsonl(data_path, client, topic):
 
 
 eqs = [
-    #"2017_12_15",
+    # "2017_12_15",
     "2017_12_16",
     "2017_12_25",
     "2018_1_8",
