@@ -2,7 +2,6 @@
 
 import json
 import glob
-from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
 
 import pandas as pd
@@ -27,7 +26,7 @@ def run(datapath):
             port=os.environ["MQTT_PORT"],
             username=os.environ["MQTT_USERNAME"],
             password=os.environ["MQTT_PASSWORD"],
-            clientid=os.environ["MQTT_CLIENTID"] + "m",
+            clientid=os.environ["MQTT_CLIENTID"] + "_sim",
         )
 
     elif params["MQTT"] == "local":
@@ -37,7 +36,7 @@ def run(datapath):
             port=1883,
             username="NA",
             password="NA",
-            clientid=os.environ["MQTT_CLIENTID"] + "m",
+            clientid=os.environ["MQTT_CLIENTID"] + "_sim",
         )
 
     elif params["MQTT"] == "custom":
@@ -47,7 +46,7 @@ def run(datapath):
             port=int(os.environ["CUS_MQTT_PORT"]),
             username=os.environ["CUS_MQTT_USERNAME"],
             password=os.environ["CUS_MQTT_PASSWORD"],
-            clientid=os.environ["CUS_MQTT_CLIENTID"] + "sim",
+            clientid=os.environ["CUS_MQTT_CLIENTID"] + "_sim",
             cafile=os.environ["CUS_MQTT_CERT"],
         )
 

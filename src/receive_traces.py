@@ -1,6 +1,5 @@
 """This script receives trace data from MQTT by subscribing to a topic"""
 import json
-from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
 import datetime
 import os
@@ -29,7 +28,7 @@ class DataReceiver:
                 port=int(os.environ["MQTT_PORT"]),
                 username=os.environ["MQTT_USERNAME"],
                 password=os.environ["MQTT_PASSWORD"],
-                clientid=os.environ["MQTT_CLIENTID"] + "trace",
+                clientid=os.environ["MQTT_CLIENTID"] + "_rec",
             )
 
         elif self.params["MQTT"] == "local":
@@ -39,7 +38,7 @@ class DataReceiver:
                 port=1883,
                 username="NA",
                 password="NA",
-                clientid="NA:" + "trace" + "_seis",
+                clientid="NA:" + "trace" + "_rec",
             )
 
         elif self.params["MQTT"] == "custom":
@@ -49,7 +48,7 @@ class DataReceiver:
                 port=int(os.environ["CUS_MQTT_PORT"]),
                 username=os.environ["CUS_MQTT_USERNAME"],
                 password=os.environ["CUS_MQTT_PASSWORD"],
-                clientid=os.environ["CUS_MQTT_CLIENTID"] + "rec",
+                clientid=os.environ["CUS_MQTT_CLIENTID"] + "_rec",
                 cafile=os.environ["CUS_MQTT_CERT"],
             )
 

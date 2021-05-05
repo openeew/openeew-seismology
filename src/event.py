@@ -631,7 +631,6 @@ class Event:
         detected_devices = all_detections["device_id"]
 
         # get the new device id and detection time
-        new_detection_id = new_detection["detection_id"]
         new_device = new_detection["device_id"]
         new_time = new_detection["cloud_t"]
 
