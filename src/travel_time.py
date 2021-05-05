@@ -21,7 +21,7 @@ __status__ = ""
 
 
 def get_travel_time_vector(params):
-    """"""
+    """ """
 
     # set params from params
     lat_min = params["lat_min"]
