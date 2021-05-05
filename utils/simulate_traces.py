@@ -2,55 +2,68 @@
 
 import json
 import glob
-from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
 
 import pandas as pd
 import time
 from datetime import datetime
 
+import os, sys, inspect
 
-def run():
-    """Main method that parses command options and executes the rest of the script"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--host", help="An MQTT host", nargs="?", const="localhost", default="localhost"
-    )
-    parser.add_argument(
-        "--port", help="An MQTT port", nargs="?", type=int, const=1883, default=1883
-    )
-    parser.add_argument(
-        "--directory",
-        help="A directory containing *.JSONL files",
-        nargs="?",
-        default="../data/2017_12_15",
-    )
-
-    parser.add_argument("--clientid", help="MQTT clientID", default="simulator_traces")
-
-    # If MQTT has username and password authentication on
-    parser.add_argument("--username", help="A username for the MQTT Server")
-    parser.add_argument("--password", help="A password for the MQTT server")
-
-    arguments = parser.parse_args()
-
-    client = create_client(
-        arguments.host, arguments.port, arguments.username, arguments.password
-    )
-
-    publish_jsonl(
-        arguments.directory,
-        client,
-        "iot-2/type/OpenEEW/id/000000000000/evt/status/fmt/json",
-    )
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+from params import params
 
 
-def create_client(host, port, username, password):
+def run(datapath):
+    """Main method that creates client and executes the rest of the script"""
+
+    if params["MQTT"] == "IBM":
+        # create a client
+        client = create_client(
+            host=os.environ["MQTT_HOST"],
+            port=os.environ["MQTT_PORT"],
+            username=os.environ["MQTT_USERNAME"],
+            password=os.environ["MQTT_PASSWORD"],
+            clientid=os.environ["MQTT_CLIENTID"] + "_sim",
+        )
+
+    elif params["MQTT"] == "local":
+        # create a client
+        client = create_client(
+            host="localhost",
+            port=1883,
+            username="NA",
+            password="NA",
+            clientid=os.environ["MQTT_CLIENTID"] + "_sim",
+        )
+
+    elif params["MQTT"] == "custom":
+        # create a client
+        client = create_client(
+            host=os.environ["CUS_MQTT_HOST"],
+            port=int(os.environ["CUS_MQTT_PORT"]),
+            username=os.environ["CUS_MQTT_USERNAME"],
+            password=os.environ["CUS_MQTT_PASSWORD"],
+            clientid=os.environ["CUS_MQTT_CLIENTID"] + "_sim",
+            cafile=os.environ["CUS_MQTT_CERT"],
+        )
+
+    topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
+
+    publish_jsonl(datapath, client, topic)
+
+
+def create_client(host, port, username, password, clientid, cafile=None):
     """Creating an MQTT Client Object"""
-    client = MqttClient()
+    client = MqttClient(clientid)
 
     if username and password:
         client.username_pw_set(username=username, password=password)
+
+    if cafile:
+        client.tls_set(ca_certs=cafile)
 
     client.connect(host=host, port=port)
     return client
@@ -78,8 +91,10 @@ def publish_jsonl(data_path, client, topic):
 
     # loop over all json elements in the json array and publish to MQTT
     for i in range(len(data)):
+
         json_str = data[["device_id", "x", "y", "z", "sr"]].iloc[i].to_json()
         client.publish(topic, json.dumps(json_str))
+
         time.sleep(timediff.iloc[i])
 
         print(
@@ -89,4 +104,29 @@ def publish_jsonl(data_path, client, topic):
         )
 
 
-run()
+eqs = [
+    # "2017_12_15",
+    "2017_12_16",
+    "2017_12_25",
+    "2018_1_8",
+    "2018_1_29",
+    "2018_2_16",
+    "2018_8_12",
+    "2018_8_22",
+    "2018_9_25",
+    "2019_3_9",
+    "2020_1_11",
+    "2020_1_24",
+    "2020_1_29",
+    "2020_1_30",
+    "2020_3_30",
+    "2020_6_23",
+    "2020_7_2",
+]
+
+for eq in eqs:
+
+    hist_data_path = "../data/" + eq
+    run(hist_data_path)
+
+    time.sleep(200)

@@ -5,7 +5,7 @@ import numpy as np
 import datetime
 import sys
 
-from src import travel_time
+from src import travel_time, publish_mqtt
 
 
 @dataclass
@@ -80,6 +80,33 @@ class Detections:
     def update(self, data):
         self.data = self.data.append(data, ignore_index=True)
 
+    def drop(self, params):
+
+        # get timestamp for the received trace
+        dt = datetime.datetime.now(datetime.timezone.utc)
+        utc_time = dt.replace(tzinfo=datetime.timezone.utc)
+        cloud_t = utc_time.timestamp()
+
+        # drop all data older than cloud_t - buffer
+        try:
+            # publish old detections to mqtt
+            old_detections = self.data[
+                (self.data["cloud_t"] + params["det_ev_buffer"]) < cloud_t
+            ]
+
+            for _, det in old_detections.iterrows():
+                json_data = det.to_dict()
+
+                publish_mqtt.run(params["region"], "detection", json_data, params)
+
+            # delete old detections
+            self.data = self.data[
+                (self.data["cloud_t"] + params["det_ev_buffer"]) >= cloud_t
+            ]
+            print("▫️ Number of detections in the buffer " + str(len(self.data)))
+        except:
+            pass
+
 
 @dataclass
 class Devices:
@@ -105,6 +132,10 @@ class Events:
             "lon",
             "dep",
             "mag",
+            "mconf2",
+            "mconf16",
+            "mconf84",
+            "mconf98",
             "num_assoc",
         ]
     )
@@ -116,6 +147,32 @@ class Events:
 
         # append to the data
         self.data = self.data.append(df_new, ignore_index=True)
+
+    def drop(self, params):
+
+        # get timestamp for the received trace
+        dt = datetime.datetime.now(datetime.timezone.utc)
+        utc_time = dt.replace(tzinfo=datetime.timezone.utc)
+        cloud_t = utc_time.timestamp()
+
+        # drop all data older than cloud_t - buffer
+        try:
+            self.data = self.data[
+                (self.data["cloud_t"] + params["det_ev_buffer"]) >= cloud_t
+            ]
+            print("▫️ Number of events in the buffer " + str(len(self.data)))
+        except:
+            pass
+
+    def publish_event(self, params, event_id):
+        """Publishes event to mqtt"""
+
+        event = self.data[self.data["event_id"] == event_id].iloc[-1]
+
+        if event["num_assoc"] >= params["ndef_min"]:
+
+            json_data = event.to_dict()
+            publish_mqtt.run(params["region"], "event", json_data, params)
 
 
 class TravelTimes:

@@ -17,14 +17,6 @@ from src import (
     travel_time,
 )
 
-__author__ = "Vaclav Kuna"
-__copyright__ = ""
-__license__ = ""
-__version__ = "1.0"
-__maintainer__ = "Vaclav Kuna"
-__email__ = "kuna.vaclav@gmail.com"
-__status__ = ""
-
 
 def main():
     """Does everything"""
@@ -54,7 +46,7 @@ def main():
     receive_devices_process.start()
 
     # We create and start our raw_data update worker
-    stream = receive_traces.DataReceiver(raw_data)
+    stream = receive_traces.DataReceiver(raw_data, params=params)
     receive_data_process = Thread(target=stream.run)
     receive_data_process.start()
 

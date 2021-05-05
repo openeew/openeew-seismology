@@ -10,15 +10,6 @@ import pickle
 import datetime
 import math
 import time
-from src import publish_mqtt
-
-__author__ = "Vaclav Kuna"
-__copyright__ = ""
-__license__ = ""
-__version__ = "1.0"
-__maintainer__ = "Vaclav Kuna"
-__email__ = "kuna.vaclav@gmail.com"
-__status__ = ""
 
 
 class Event:
@@ -74,16 +65,14 @@ class Event:
             if tsl > self.params["tsl_max"]:
                 del self.active_events[event_id]
 
-            # Or update location, magnitude, and origin time
+            # Or update location, magnitude, and origin time, publish to mqtt
             else:
                 self.update_events(event_id)
+                self.events.publish_event(self.params, event_id=event_id)
 
-                json_data = (
-                    self.events.data[self.events.data["event_id"] == event_id]
-                    .iloc[-1]
-                    .to_json()
-                )
-                publish_mqtt.run("event", json_data)
+        # 4. Drop detections and events that are older than det_ev_buffer
+        self.detections.drop(self.params)
+        self.events.drop(self.params)
 
     def get_detections(self):
         """Get new detections from the detection table"""
@@ -97,13 +86,25 @@ class Event:
         """This sets a new event in the class"""
 
         # Get event ID
-        try:
-            event_id = self.events.data["event_id"].to_list()
-            event_id.append(max(self.active_events.keys()))
+        # region
+        region = self.params["region"]
 
-            event_id = max(event_id) + 1
-        except:
-            event_id = 1
+        # timestamp
+        timestamp = datetime.datetime.utcfromtimestamp(new_detection["cloud_t"])
+        year = str(timestamp.year - 2000).zfill(2)
+        month = str(timestamp.month).zfill(2)
+        day = str(timestamp.day).zfill(2)
+        hour = str(timestamp.hour).zfill(2)
+        minute = str(timestamp.minute).zfill(2)
+        event_id = "E_" + region + year + month + day + hour + minute
+
+        # alphabet letter
+        all_events_id = list(set(self.events.data["event_id"].to_list()))
+        all_events_id = [n for n in all_events_id if n[:-1] == event_id]
+        letter_count = len(all_events_id)
+
+        # while id
+        event_id = event_id + chr(ord("@") + letter_count + 1)
 
         self.active_events[event_id] = {}
 
@@ -553,9 +554,23 @@ class Event:
         conf84 = mag_bins[np.argmin(abs(cum_prob - 0.84))]
         conf98 = mag_bins[np.argmin(abs(cum_prob - 0.98))]
 
+        # set initial magnitude and confidence intervals
+        # (just a rough estimate)
+        if magnitude == 0:
+            magnitude = 4
+            conf2 = 2
+            conf16 = 3
+            conf84 = 5.5
+            conf98 = 8
+
         return magnitude, conf2, conf16, conf84, conf98
 
     def update_events(self, event_id):
+
+        # get timestamp for the event trace
+        dt = datetime.datetime.now(datetime.timezone.utc)
+        utc_time = dt.replace(tzinfo=datetime.timezone.utc)
+        cloud_t = utc_time.timestamp()
 
         # Update location
         best_lat, best_lon, best_depth, best_orig_time = self.get_best_location(
@@ -563,7 +578,7 @@ class Event:
         )
 
         # Update magnitude
-        magnitude, conf2, conf16, conf84, conf98 = self.get_magnitude(
+        magnitude, mconf2, mconf16, mconf84, mconf98 = self.get_magnitude(
             event_id, best_lat, best_lon
         )
 
@@ -575,12 +590,16 @@ class Event:
         # Add line in events
         new_event = {
             "event_id": event_id,
-            "cloud_t": 0,
+            "cloud_t": cloud_t,
             "orig_time": best_orig_time,
             "lat": best_lat,
             "lon": best_lon,
             "dep": best_depth,
             "mag": magnitude,
+            "mconf2": mconf2,
+            "mconf16": mconf16,
+            "mconf84": mconf84,
+            "mconf98": mconf98,
             "num_assoc": num_assoc,
         }
         self.events.update(new_event)
@@ -612,7 +631,6 @@ class Event:
         detected_devices = all_detections["device_id"]
 
         # get the new device id and detection time
-        new_detection_id = new_detection["detection_id"]
         new_device = new_detection["device_id"]
         new_time = new_detection["cloud_t"]
 

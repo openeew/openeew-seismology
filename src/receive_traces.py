@@ -1,53 +1,68 @@
 """This script receives trace data from MQTT by subscribing to a topic"""
 import json
-from argparse import ArgumentParser
 from paho.mqtt.client import Client as MqttClient
 import datetime
+import os
 
 
 class DataReceiver:
     """This class subscribes to the MQTT and receivces raw data"""
 
-    def __init__(self, df_holder) -> None:
-        """Initializes the DataReceiver object"""
+    def __init__(self, df_holder, params) -> None:
+        """
+        Initializes the DataReceiver object
+
+        MQTT variable in params (params["MQTT"]) define whether local, or IBM MQTT is used
+        """
         super().__init__()
         self.df_holder = df_holder
+        self.params = params
 
     def run(self):
-        """Main method that parses command options and executes the rest of the script"""
-        parser = ArgumentParser()
-        parser.add_argument("--username", help="MQTT username")
-        parser.add_argument("--password", help="MQTT password")
-        parser.add_argument(
-            "--clientid", help="MQTT clientID", default="recieve_traces_simulator"
-        )
-        parser.add_argument(
-            "--host",
-            help="MQTT host",
-            nargs="?",
-            const="localhost",
-            default="localhost",
-        )
-        parser.add_argument(
-            "--port", help="MQTT port", nargs="?", type=int, const=1883, default=1883
-        )
-        arguments = parser.parse_args()
+        """Main method that creates client and executes the rest of the script"""
 
-        client = self.create_client(
-            arguments.host,
-            arguments.port,
-            arguments.username,
-            arguments.password,
-            arguments.clientid,
-        )
+        if self.params["MQTT"] == "IBM":
+            # create a client
+            client = self.create_client(
+                host=os.environ["MQTT_HOST"],
+                port=int(os.environ["MQTT_PORT"]),
+                username=os.environ["MQTT_USERNAME"],
+                password=os.environ["MQTT_PASSWORD"],
+                clientid=os.environ["MQTT_CLIENTID"] + "_rec",
+            )
+
+        elif self.params["MQTT"] == "local":
+            # create a client
+            client = self.create_client(
+                host="localhost",
+                port=1883,
+                username="NA",
+                password="NA",
+                clientid="NA:" + "trace" + "_rec",
+            )
+
+        elif self.params["MQTT"] == "custom":
+            # create a client
+            client = self.create_client(
+                host=os.environ["CUS_MQTT_HOST"],
+                port=int(os.environ["CUS_MQTT_PORT"]),
+                username=os.environ["CUS_MQTT_USERNAME"],
+                password=os.environ["CUS_MQTT_PASSWORD"],
+                clientid=os.environ["CUS_MQTT_CLIENTID"] + "_rec",
+                cafile=os.environ["CUS_MQTT_CERT"],
+            )
+
         client.loop_forever()
 
-    def create_client(self, host, port, username, password, clientid):
+    def create_client(self, host, port, username, password, clientid, cafile=None):
         """Creating an MQTT Client Object"""
         client = MqttClient(clientid)
 
         if username and password:
             client.username_pw_set(username=username, password=password)
+
+        if cafile:
+            client.tls_set(ca_certs=cafile)
 
         client.on_connect = self.on_connect
         client.on_message = self.on_message
@@ -56,9 +71,10 @@ class DataReceiver:
 
     def on_connect(self, client, userdata, flags, resultcode):
         """Upon connecting to an MQTT server, subscribe to the topic
-        The production topic is 'iot-2/type/OpenEEW/id/+/evt/status/fmt/json'"""
+        The production topic is 'iot-2/type/OpenEEW/id/+/evt/trace/fmt/json'"""
 
-        topic = "iot-2/type/OpenEEW/id/+/evt/status/fmt/json"
+        topic = "iot-2/type/OpenEEW/id/000000000000/evt/trace/fmt/json"
+
         print(f"✅ Subscribed to sensor data with result code {resultcode}")
         client.subscribe(topic)
 

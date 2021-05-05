@@ -90,10 +90,18 @@ class Detect:
 
                 if past_detections.shape[0] == 0:
 
-                    try:
-                        detection_id = self.detections.data["detection_id"].iloc[-1] + 1
-                    except:
-                        detection_id = 1
+                    # Get event ID
+                    # region
+                    region = self.params["region"]
+
+                    # timestamp
+                    timestamp = datetime.utcfromtimestamp(min(det_time))
+                    year = str(timestamp.year - 2000).zfill(2)
+                    month = str(timestamp.month).zfill(2)
+                    day = str(timestamp.day).zfill(2)
+                    hour = str(timestamp.hour).zfill(2)
+                    minute = str(timestamp.minute).zfill(2)
+                    detection_id = "D_" + region + year + month + day + hour + minute
 
                     new_detection = pd.DataFrame(
                         {
@@ -190,7 +198,7 @@ class Detect:
         """
 
         # define variables
-        sr = self.params["samp_rate"]  # definition of sampling frequency
+        sr = self.raw_data.data["sr"][0]  # definition of sampling frequency
 
         # double integration of stream in displacement
         trace = np.cumsum(trace * 1 / sr)
@@ -208,7 +216,7 @@ class Detect:
         hilb = np.abs(hilb)
 
         # create a trace long enough to contain 10-s of signal
-        eval_trace = np.empty((300,))
+        eval_trace = np.empty((320,))
         eval_trace[:] = np.nan
 
         # and fill in the values from the hilbert trace
